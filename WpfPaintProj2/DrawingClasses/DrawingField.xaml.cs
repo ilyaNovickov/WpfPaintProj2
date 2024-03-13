@@ -64,13 +64,43 @@ namespace WpfPaintProj2.DrawingClasses
             }
         }
 
+        public void AddFigure(Figure figure)
+        {
+            if (SelectedLayer == null)
+                return;
+
+            SelectedLayer.AddFigure(figure);
+        }
+
+        public void RemoveFigure(Figure figure)
+        {
+            if (SelectedLayer == null)
+                return;
+
+            RemoveShape(figure);
+            SelectedLayer.RemoveFigure(figure);
+        }
+
+        private void RemoveShape(Figure figure)
+        {
+            if (SelectedLayer == null)
+                return;
+
+            int index = SelectedLayer.Figures.IndexOf(figure);
+
+            Shape shape = shapes[SelectedLayer][index];
+
+            shapes[SelectedLayer].RemoveAt(index);
+
+            LinkedCanvas.Children.Remove(shape);
+        }
+
         public void AddLayer()
         {
             Layer layer = new Layer();
             layer.Width = 500;
             layer.Height = 500;
             layer.Fill = Brushes.Transparent;
-            layer.SizeChanged += Layer_SizeChanged;
 
             AddLayer(layer);
         }
@@ -80,11 +110,27 @@ namespace WpfPaintProj2.DrawingClasses
             layer.SizeChanged += Layer_SizeChanged;
             layer.VisibleChanged += Layer_VisibleChanged;
             layer.FigureAdded += Layer_FigureAdded;
+            layer.FigureRemoved += Layer_FigureRemoved;
             shapes.Add(layer, new List<Shape>());
             layer.Name = "Layer #" + layers.Count;
             UpdateSize(layer);
             layers.Add(layer);
             AddCanvas(layer);
+        }
+
+        private void Layer_FigureRemoved(object sender, EventArgs e)
+        {
+            //Layer layer = (Layer)sender;
+
+            //List<Shape> shapesList = shapes[layer];
+
+            //shapesList.
+
+            //Shape shape = GetShape(layer.Figures.Last());
+
+            //shapes[layer].Add(shape);
+
+            //canvases[layers.IndexOf(layer)].Children.Add(shape);
         }
 
         private void Layer_FigureAdded(object sender, EventArgs e)
@@ -268,6 +314,25 @@ namespace WpfPaintProj2.DrawingClasses
         {
             base.OnPreviewMouseDown(e);
 
+
+
+            Point pt = e.GetPosition(LinkedCanvas);
+
+            // Perform the hit test against a given portion of the visual object tree.
+            HitTestResult result = VisualTreeHelper.HitTest(LinkedCanvas, pt);
+
+            if (result != null)
+            {
+                if (result.VisualHit is Shape)
+                {
+
+                }
+            }
+
+
+
+
+
             if (LinkedCanvas == null)
                 return;
 
@@ -281,6 +346,8 @@ namespace WpfPaintProj2.DrawingClasses
             };
 
             SelectedLayer.AddFigure(figure);
+
+            
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
