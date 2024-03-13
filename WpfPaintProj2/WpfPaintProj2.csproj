@@ -77,6 +77,7 @@
       <DependentUpon>DrawingField.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CanvasExtraMethods.cs" />
+    <Compile Include="Helpers\GenericCommand.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="OwnShapes\Rhomb.cs" />
     <Compile Include="OwnShapes\Triangle.cs" />

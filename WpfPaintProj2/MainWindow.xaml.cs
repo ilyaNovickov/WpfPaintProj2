@@ -36,11 +36,6 @@ namespace WpfPaintProj2
             drawingField.SelectedLayer = drawingField.Layers.Last();
         }
 
-        private void drawingField_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            
-        }
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             drawingField.RemoveLayer();
