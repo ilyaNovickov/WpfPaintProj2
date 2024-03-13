@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +11,28 @@ namespace WpfPaintProj2.DrawingClasses
 {
     public class Layer : PositionObject
     {
+        private ObservableCollection<Figure> figures = new ObservableCollection<Figure>();
+
+        private Figure selectedFigure = null;
+
         private Brush fill = Brushes.Red;
         private string name;
         private bool isVisible = true;
+
+
+
+        public Figure SelectedFigure
+        {
+            get => selectedFigure;
+            set
+            {
+                selectedFigure = value;
+
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Figure> Figures => figures;
 
         public bool IsVisible
         {
@@ -46,5 +66,27 @@ namespace WpfPaintProj2.DrawingClasses
         }
 
         public event EventHandler VisibleChanged;
+
+        public event EventHandler FigureAdded;
+
+        public event EventHandler FigureRemoved;
+
+        public void AddFigure(Figure figure)
+        {
+            figures.Add(figure);
+            FigureAdded?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void RemoveFigure(Figure figure)
+        {
+            figures.Remove(figure);
+            FigureRemoved?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void RemoveAt(int index)
+        {
+            figures.RemoveAt(index);
+            FigureRemoved?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

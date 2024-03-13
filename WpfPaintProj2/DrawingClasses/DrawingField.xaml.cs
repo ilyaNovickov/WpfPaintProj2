@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfPaintProj2.Helpers;
+using WpfPaintProj2.OwnShapes;
 
 namespace WpfPaintProj2.DrawingClasses
 {
@@ -30,6 +32,8 @@ namespace WpfPaintProj2.DrawingClasses
         private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
 
         private List<Canvas> canvases = new List<Canvas>();
+
+        private Dictionary<Layer, List<Shape>> shapes = new Dictionary<Layer, List<Shape>>();
 
 
         public DrawingField()
@@ -75,10 +79,23 @@ namespace WpfPaintProj2.DrawingClasses
         {
             layer.SizeChanged += Layer_SizeChanged;
             layer.VisibleChanged += Layer_VisibleChanged;
+            layer.FigureAdded += Layer_FigureAdded;
+            shapes.Add(layer, new List<Shape>());
             layer.Name = "Layer #" + layers.Count;
             UpdateSize(layer);
             layers.Add(layer);
             AddCanvas(layer);
+        }
+
+        private void Layer_FigureAdded(object sender, EventArgs e)
+        {
+            Layer layer = (Layer)sender;
+
+            Shape shape = GetShape(layer.Figures.Last());
+
+            shapes[layer].Add(shape);
+
+            canvases[layers.IndexOf(layer)].Children.Add(shape);
         }
 
         private void Layer_VisibleChanged(object sender, EventArgs e)
@@ -217,6 +234,36 @@ namespace WpfPaintProj2.DrawingClasses
             return canvas;
         }
 
+        private Shape GetShape(Figure figure)
+        {
+            Shape shape;
+
+            switch (figure.Type)
+            {
+                case StandartShapes.Ellipse:
+                    shape = new Ellipse();
+                    break;
+                case StandartShapes.Triangle:
+                    shape = new Triangle();
+                    break;
+                case StandartShapes.Rhomb:
+                    shape = new Rhomb();
+                    break;
+                default:
+                case StandartShapes.Rectangele:
+                    shape = new Rectangle();
+                    break;
+            }
+
+            shape.Stroke = figure.Fore;
+            shape.Fill = figure.Fill;
+            shape.Width = figure.Width;
+            shape.Height = figure.Height;
+            shape.SetCanvasCenterPoint(figure.X, figure.Y);
+
+            return shape;
+        }
+
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseDown(e);
@@ -224,16 +271,16 @@ namespace WpfPaintProj2.DrawingClasses
             if (LinkedCanvas == null)
                 return;
 
-            Rectangle rect = new Rectangle();
-            rect.Width = 50;
-            rect.Height = 50;
-            rect.SetCanvasCenterPoint(e.GetPosition(LinkedCanvas));
+            Figure figure = new Figure()
+            {
+                Fill = Brushes.Red,
+                Fore = Brushes.Black,
+                Width = 50d,
+                Height = 50d,
+                Location = e.GetPosition(LinkedCanvas)
+            };
 
-            rect.Fill = Brushes.Red;
-
-            Point p = rect.GetCanvasPoint();
-
-            LinkedCanvas.Children.Add(rect);
+            SelectedLayer.AddFigure(figure);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
