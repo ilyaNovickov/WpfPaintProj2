@@ -9,10 +9,11 @@
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="asdas" Click="MenuItem_Click"/>
+            <Button Content="Undo" Click="undoButton_Click"/>
+            <Button Content="Redo" Click="redoButton_Click_1"/>
         </Menu>
         <ToolBar DockPanel.Dock="Top">
-            <Button>asdas</Button>
+            <Button Content="Создать" Click="createButton_Click"/>
         </ToolBar>
         <StackPanel DockPanel.Dock="Bottom">
             <Label>sadsd</Label>
@@ -25,7 +26,7 @@
             <!--Для риосвания-->
 
             <drawing:DrawingField x:Name="drawingField" Grid.Column="0" Background="Gray"
-                                  />
+                                  MouseDown="drawingField_MouseDown"/>
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -35,10 +36,10 @@
                 <!--Выбор фигур-->
                 <GroupBox Header="Фигуры" Grid.Row="0">
                     <WrapPanel>
-                        <Button Content="Квадрат" Margin="5,5,5,5"/>
-                        <Button Content="Эллипс" Margin="5,5,5,5"/>
-                        <Button Content="Триугольник" Margin="5,5,5,5"/>
-                        <Button Content="Ромб" Margin="5,5,5,5"/>
+                        <Button Content="Квадрат" x:Name="rectButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                        <Button Content="Эллипс" x:Name="ellipseButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                        <Button Content="Триугольник" x:Name="triangleButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                        <Button Content="Ромб" x:Name="rhombeButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
                     </WrapPanel>
                 </GroupBox>
                 <!--Разное-->
@@ -53,9 +54,16 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="0.2*"/>
                         </Grid.RowDefinitions>
-                        <ListBox Grid.Row="0"/>
+                        <ListBox Grid.Row="0" DataContext="{Binding ElementName=drawingField, Path=SelectedLayer}"
+                                 ItemsSource="{Binding Figures}"
+                                 SelectedItem="{Binding SelectedFigure}"
+                                 DisplayMemberPath="Name"/>
                         <Grid Grid.Row="1">
-                            <Button>asdas</Button>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Удалить" Click="removeFigureButton_Click"/>
                         </Grid>
                     </Grid>
                     <!--Слои-->
@@ -87,8 +95,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="Удалить слой" Click="Button_Click"/>
-                            <Button Grid.Column="1" Content="Добавить" Click="Button_Click_1"/>
+                            <Button Grid.Column="0" Content="Удалить слой" Click="removeLayerButton_Click"/>
+                            <Button Grid.Column="1" Content="Добавить" Click="addLayerButton_Click"/>
                         </Grid>
                     </Grid>
                 </Grid>

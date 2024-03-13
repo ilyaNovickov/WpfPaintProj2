@@ -35,10 +35,21 @@ namespace WpfPaintProj2.DrawingClasses
 
         private Dictionary<Layer, List<Shape>> shapes = new Dictionary<Layer, List<Shape>>();
 
+        private DrawingMode mode = DrawingMode.None;
 
         public DrawingField()
         {
             InitializeComponent();
+        }
+
+        public DrawingMode DrawingMode
+        {
+            get => mode;
+            set
+            {
+                mode = value;
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<Layer> Layers => layers;
@@ -66,7 +77,7 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void AddFigure(Figure figure)
         {
-            if (SelectedLayer == null)
+            if (SelectedLayer == null || figure == null)
                 return;
 
             SelectedLayer.AddFigure(figure);
@@ -74,7 +85,7 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void RemoveFigure(Figure figure)
         {
-            if (SelectedLayer == null)
+            if (SelectedLayer == null || figure == null)
                 return;
 
             RemoveShape(figure);
@@ -107,6 +118,9 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void AddLayer(Layer layer)
         {
+            if (layer == null)
+                return;
+
             layer.SizeChanged += Layer_SizeChanged;
             layer.VisibleChanged += Layer_VisibleChanged;
             layer.FigureAdded += Layer_FigureAdded;
@@ -314,7 +328,7 @@ namespace WpfPaintProj2.DrawingClasses
         {
             base.OnPreviewMouseDown(e);
 
-
+            return;
 
             Point pt = e.GetPosition(LinkedCanvas);
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
+//using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -21,12 +21,14 @@ namespace WpfPaintProj2
     /// </summary>
     public partial class MainWindow : Window
     {
+        private StandartShapes shapeToAdd = StandartShapes.Rectangele;
+
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void createButton_Click(object sender, RoutedEventArgs e)
         {
             Layer layer = new Layer();
             layer.Width = 500;
@@ -36,14 +38,64 @@ namespace WpfPaintProj2
             drawingField.SelectedLayer = drawingField.Layers.Last();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void removeLayerButton_Click(object sender, RoutedEventArgs e)
         {
             drawingField.RemoveLayer();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void addLayerButton_Click(object sender, RoutedEventArgs e)
         {
             drawingField.AddLayer();
+        }
+
+        private void addShapeButton_Click(object sender, RoutedEventArgs e)
+        {
+            drawingField.DrawingMode = DrawingMode.Adding;
+
+            if (sender == rectButton)
+                shapeToAdd = StandartShapes.Rectangele;
+            else if (sender == ellipseButton)
+                shapeToAdd = StandartShapes.Ellipse;
+            else if (sender == triangleButton)
+                shapeToAdd = StandartShapes.Triangle;
+            else if (sender == rhombeButton)
+                shapeToAdd = StandartShapes.Rhomb;
+        }
+
+        private void drawingField_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (drawingField.DrawingMode != DrawingMode.Adding || drawingField.SelectedLayer == null)
+                return;
+
+            Figure figure = new Figure()
+            {
+                Fill = Brushes.White,
+                Fore = Brushes.Black,
+                Size = new Size(50d, 50d),
+                Location = e.GetPosition(drawingField.LinkedCanvas),
+                Type = shapeToAdd
+            };
+
+            drawingField.AddFigure(figure);
+
+            drawingField.SelectedLayer.SelectedFigure = figure;
+
+            drawingField.DrawingMode = DrawingMode.Selecting;
+        }
+
+        private void removeFigureButton_Click(object sender, RoutedEventArgs e)
+        {
+            drawingField.RemoveFigure(drawingField.SelectedLayer.SelectedFigure);
+        }
+
+        private void undoButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void redoButton_Click_1(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -11,6 +11,8 @@ namespace WpfPaintProj2.DrawingClasses
     {
         None,
         Dragging,
-        Resizing
+        Resizing,
+        Adding,
+        Selecting
     }
 }
