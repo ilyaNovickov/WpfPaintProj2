@@ -30,5 +30,10 @@ namespace WpfPaintProj2
             drawingField.AddLayer();
             drawingField.SelectedLayer = drawingField.Layers.Last();
         }
+
+        private void drawingField_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show($"{e.GetPosition(drawingField).X} | {e.GetPosition(drawingField).Y}");
+        }
     }
 }
