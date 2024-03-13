@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace WpfPaintProj2.DrawingClasses
@@ -11,6 +12,18 @@ namespace WpfPaintProj2.DrawingClasses
     {
         private Brush fill = Brushes.Red;
         private string name;
+        private bool isVisible = true;
+
+        public bool IsVisible
+        {
+            get => isVisible;
+            set
+            {
+                isVisible = value;
+                VisibleChanged?.Invoke(this, EventArgs.Empty);
+                OnPropertyChanged();
+            }
+        }
 
         public string Name
         {
@@ -31,5 +44,7 @@ namespace WpfPaintProj2.DrawingClasses
                 OnPropertyChanged();
             }
         }
+
+        public event EventHandler VisibleChanged;
     }
 }

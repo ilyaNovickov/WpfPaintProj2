@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfPaintProj2.Helpers;
 
 namespace WpfPaintProj2.DrawingClasses
 {
@@ -26,6 +28,8 @@ namespace WpfPaintProj2.DrawingClasses
         private Layer selectedLayer = null;
 
         private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
+
+        private List<Canvas> canvases = new List<Canvas>();
 
 
         public DrawingField()
@@ -45,13 +49,23 @@ namespace WpfPaintProj2.DrawingClasses
             }
         }
 
+        public Canvas LinkedCanvas
+        {
+            get
+            {
+                if (selectedLayer == null)
+                    return null;
+
+                return canvases[layers.IndexOf(selectedLayer)];
+            }
+        }
+
         public void AddLayer()
         {
             Layer layer = new Layer();
             layer.Width = 500;
             layer.Height = 500;
-            layer.Fill = Brushes.White;
-            layer.Name = "Layer #" + layers.Count;
+            layer.Fill = Brushes.Transparent;
             layer.SizeChanged += Layer_SizeChanged;
 
             AddLayer(layer);
@@ -60,22 +74,53 @@ namespace WpfPaintProj2.DrawingClasses
         public void AddLayer(Layer layer)
         {
             layer.SizeChanged += Layer_SizeChanged;
+            layer.VisibleChanged += Layer_VisibleChanged;
+            layer.Name = "Layer #" + layers.Count;
             UpdateSize(layer);
             layers.Add(layer);
             AddCanvas(layer);
         }
 
+        private void Layer_VisibleChanged(object sender, EventArgs e)
+        {
+            int index = layers.IndexOf((Layer)sender);
+
+            if (!(0 <= index && index < layers.Count))
+                return;
+
+            switch (((Layer)sender).IsVisible)
+            {
+                case true:
+                    canvases[index].Visibility = Visibility.Visible;
+                    break;
+                case false:
+                    canvases[index].Visibility = Visibility.Hidden;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void RemoveLayer()
+        {
+            if (SelectedLayer == null)
+                return;
+
+            RemoveLayer(SelectedLayer);
+        }
+
         public void RemoveLayer(Layer layer)
         {
-            layers.Remove(layer);
-            
+            RemoveCanvas(layer);
+            layers.Remove(layer);    
+
             UpdateSize();
         }
 
         public void RemoveLayerAt(int index)
         {
+            RemoveCanvas(index);
             layers.RemoveAt(index);
-            //mainCanvas.Children.RemoveAt(index);
             UpdateSize();
         }
 
@@ -144,11 +189,21 @@ namespace WpfPaintProj2.DrawingClasses
             Canvas canvas = GetCanvas(layer);
 
             mainCanvas.Children.Add(canvas);
+
+            canvases.Add(canvas);
         }
 
-        private void RemoveCanvas()
+        private void RemoveCanvas(Layer layer)
         {
+            int index = layers.IndexOf(layer);
+            mainCanvas.Children.Remove(canvases[index]);
+            canvases.RemoveAt(index);
+        }
 
+        private void RemoveCanvas(int index)
+        {
+            mainCanvas.Children.Remove(canvases[index]);
+            canvases.RemoveAt(index);
         }
 
         private Canvas GetCanvas(Layer layer)
@@ -158,8 +213,32 @@ namespace WpfPaintProj2.DrawingClasses
             canvas.Background = layer.Fill;
             canvas.Width = layer.Width;
             canvas.Height = layer.Height;
-            //Canvas(canvas.
+            canvas.SetCanvasPoint(layer.X, layer.Y);
             return canvas;
+        }
+
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseDown(e);
+
+            if (LinkedCanvas == null)
+                return;
+
+            Rectangle rect = new Rectangle();
+            rect.Width = 50;
+            rect.Height = 50;
+            rect.SetCanvasCenterPoint(e.GetPosition(LinkedCanvas));
+
+            rect.Fill = Brushes.Red;
+
+            Point p = rect.GetCanvasPoint();
+
+            LinkedCanvas.Children.Add(rect);
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+           
         }
     }
 }

@@ -25,8 +25,7 @@
             <!--Для риосвания-->
 
             <drawing:DrawingField x:Name="drawingField" Grid.Column="0" Background="Gray"
-                                  MouseDown="drawingField_MouseDown"
-                                  PreviewMouseDown="drawingField_MouseDown"/>
+                                  />
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -67,10 +66,29 @@
                         </Grid.RowDefinitions>
                         <ListBox Grid.Row="0" DataContext="{Binding ElementName=drawingField}"
                                  ItemsSource="{Binding Layers}"
-                                 SelectedItem="{Binding SelectedLayer}"
-                                 DisplayMemberPath="Name"/>
+                                 SelectedItem="{Binding SelectedLayer}" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80*"/>
+                                            <ColumnDefinition Width="20*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="{Binding Name}"/>
+                                        <Grid Grid.Column="1">
+                                            <ToggleButton IsChecked="{Binding IsVisible}" Content="Видимость"/>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                         <Grid Grid.Row="1">
-                            <Button>asdasd1</Button>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Удалить слой" Click="Button_Click"/>
+                            <Button Grid.Column="1" Content="Добавить" Click="Button_Click_1"/>
                         </Grid>
                     </Grid>
                 </Grid>
