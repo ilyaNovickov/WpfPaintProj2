@@ -55,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="DrawingClasses\DrawingField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -63,11 +67,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DrawingClasses\DrawingField.cs" />
+    <Compile Include="DrawingClasses\DrawingField1.cs" />
     <Compile Include="DrawingClasses\Layer.cs" />
     <Compile Include="DrawingClasses\Figure.cs" />
     <Compile Include="DrawingClasses\SizeChangedEventArgs.cs" />
     <Compile Include="DrawingClasses\MovedEventArgs.cs" />
+    <Compile Include="DrawingClasses\DrawingField.xaml.cs">
+      <DependentUpon>DrawingField.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OwnShapes\Rhomb.cs" />
     <Compile Include="OwnShapes\Triangle.cs" />
     <Compile Include="DrawingClasses\ResizeDirection.cs" />

@@ -7,9 +7,9 @@ using System.Windows.Media;
 
 namespace WpfPaintProj2.DrawingClasses
 {
-    class Layer : PositionObject
+    public class Layer : PositionObject
     {
-        private Brush fill = Brushes.White;
+        private Brush fill = Brushes.Red;
         private string name;
 
         public string Name

@@ -4,9 +4,75 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfPaintProj2"
+        xmlns:drawing="clr-namespace:WpfPaintProj2.DrawingClasses"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="asdas" Click="MenuItem_Click"/>
+        </Menu>
+        <ToolBar DockPanel.Dock="Top">
+            <Button>asdas</Button>
+        </ToolBar>
+        <StackPanel DockPanel.Dock="Bottom">
+            <Label>sadsd</Label>
+        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <!--Для риосвания-->
+
+            <drawing:DrawingField x:Name="drawingField" Grid.Column="0" Background="Gray"/>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <!--Выбор фигур-->
+                <GroupBox Header="Фигуры" Grid.Row="0">
+                    <WrapPanel>
+                        <Button Content="Квадрат" Margin="5,5,5,5"/>
+                        <Button Content="Эллипс" Margin="5,5,5,5"/>
+                        <Button Content="Триугольник" Margin="5,5,5,5"/>
+                        <Button Content="Ромб" Margin="5,5,5,5"/>
+                    </WrapPanel>
+                </GroupBox>
+                <!--Разное-->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <!--Фигуры-->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="0.2*"/>
+                        </Grid.RowDefinitions>
+                        <ListBox Grid.Row="0"/>
+                        <Grid Grid.Row="1">
+                            <Button>asdas</Button>
+                        </Grid>
+                    </Grid>
+                    <!--Слои-->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="0.2*"/>
+                        </Grid.RowDefinitions>
+                        <ListBox Grid.Row="0" DataContext="{Binding ElementName=drawingField}"
+                                 ItemsSource="{Binding Layers}"
+                                 SelectedItem="{Binding SelectedLayer}"
+                                 DisplayMemberPath="Name"/>
+                        <Grid Grid.Row="1">
+                            <Button>asdasd1</Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </DockPanel>
 </Window>

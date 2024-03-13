@@ -6,27 +6,31 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 namespace WpfPaintProj2.DrawingClasses
 {
-    class DrawingField : UserControl, INotifyPropertyChanged
+    /// <summary>
+    /// Логика взаимодействия для UserControl1.xaml
+    /// </summary>
+    public partial class DrawingField : UserControl, INotifyPropertyChanged
     {
         private Layer selectedLayer = null;
 
         private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
 
-        public Canvas mainCanvas = null;
 
         public DrawingField()
         {
-            mainCanvas = new Canvas();
-            mainCanvas.Background = Brushes.Gray;
-            mainCanvas.Width = 500;
-            mainCanvas.Height = 500;
-            mainCanvas.ClipToBounds = true;
+            InitializeComponent();
         }
 
         public ObservableCollection<Layer> Layers => layers;
@@ -44,28 +48,27 @@ namespace WpfPaintProj2.DrawingClasses
         public void AddLayer()
         {
             Layer layer = new Layer();
-            layer.Width = 100;
-            layer.Height = 100;
+            layer.Width = 500;
+            layer.Height = 500;
+            layer.Fill = Brushes.White;
+            layer.Name = "Layer #" + layers.Count;
             layer.SizeChanged += Layer_SizeChanged;
-            //mainCanvas.Children.Add(layer);//drawingCanvas.Last());
-            UpdateSize(layer);
-            //drawingCanvas.Add(new LayerItem("test" + drawingCanvas.Count, layer));
-            layers.Add(layer);
+
+            AddLayer(layer);
         }
 
         public void AddLayer(Layer layer)
         {
-            //this.canvas.Children.Add(canvas);
             layer.SizeChanged += Layer_SizeChanged;
             UpdateSize(layer);
-            //drawingCanvas.Add(new LayerItem("test" + drawingCanvas.Count, canvas));
             layers.Add(layer);
+            AddCanvas(layer);
         }
 
         public void RemoveLayer(Layer layer)
         {
             layers.Remove(layer);
-            //mainCanvas.Children.Remove(layer);
+            
             UpdateSize();
         }
 
@@ -134,6 +137,29 @@ namespace WpfPaintProj2.DrawingClasses
             if (!layers.Contains(layer))
                 return;
             SelectedLayer = layer;
+        }
+
+        private void AddCanvas(Layer layer)
+        {
+            Canvas canvas = GetCanvas(layer);
+
+            mainCanvas.Children.Add(canvas);
+        }
+
+        private void RemoveCanvas()
+        {
+
+        }
+
+        private Canvas GetCanvas(Layer layer)
+        {
+            Canvas canvas = new Canvas();
+
+            canvas.Background = layer.Fill;
+            canvas.Width = layer.Width;
+            canvas.Height = layer.Height;
+            //Canvas(canvas.
+            return canvas;
         }
     }
 }

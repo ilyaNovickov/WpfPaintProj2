@@ -24,5 +24,11 @@ namespace WpfPaintProj2
         {
             InitializeComponent();
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            drawingField.AddLayer();
+            drawingField.SelectedLayer = drawingField.Layers.Last();
+        }
     }
 }
