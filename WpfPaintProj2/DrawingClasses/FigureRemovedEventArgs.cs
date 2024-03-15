@@ -10,9 +10,12 @@ namespace WpfPaintProj2.DrawingClasses
     {
         public Figure RemovedFigure { get; }
 
-        public FigureRemovedEventArgs(Figure figure)
+        public int Index { get; }
+
+        public FigureRemovedEventArgs(Figure figure, int index)
         {
             RemovedFigure = figure;
+            Index = index;
         }
     }
 }

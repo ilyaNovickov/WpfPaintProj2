@@ -80,8 +80,9 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void RemoveFigure(Figure figure)
         {
+            int index = figures.IndexOf(figure);
             figures.Remove(figure);
-            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure));
+            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure, index));
         }
 
         public void RemoveAt(int index)
@@ -90,7 +91,7 @@ namespace WpfPaintProj2.DrawingClasses
 
             figures.RemoveAt(index);
 
-            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure));
+            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure, index));
         }
     }
 }

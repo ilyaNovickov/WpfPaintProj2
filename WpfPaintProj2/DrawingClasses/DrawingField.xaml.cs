@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WpfPaintProj2.Helpers;
 using WpfPaintProj2.OwnShapes;
@@ -27,6 +20,42 @@ namespace WpfPaintProj2.DrawingClasses
     /// </summary>
     public partial class DrawingField : UserControl, INotifyPropertyChanged
     {
+        private class FigureShapeLinking
+        {            
+            public Figure Figure { get; }
+            public Shape Shape { get; }
+            public int IndexInCanvas { get; set; }
+
+            public FigureShapeLinking(Figure figure, Shape shape, int index)
+            {
+                Figure = figure;
+                Shape = shape;
+                IndexInCanvas = index;
+            }
+        }
+
+        private class LayerCanvasLinking
+        {
+            public Layer Layer { get; }
+            public Canvas Canvas { get; }
+            public int IndexInMainCanvas { get; set; }
+
+            public LayerCanvasLinking(Layer layer, Canvas canvas, int index)
+            {
+                Layer = layer;
+                Canvas = canvas;
+                IndexInMainCanvas = index;
+            }
+        }
+
+        private class asd
+        {
+            public void doo()
+            {
+                
+            }
+        }
+
         private Layer selectedLayer = null;
 
         private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
@@ -74,38 +103,7 @@ namespace WpfPaintProj2.DrawingClasses
                 return canvases[layers.IndexOf(selectedLayer)];
             }
         }
-
-        public void AddFigure(Figure figure)
-        {
-            if (SelectedLayer == null || figure == null)
-                return;
-
-            SelectedLayer.AddFigure(figure);
-        }
-
-        public void RemoveFigure(Figure figure)
-        {
-            if (SelectedLayer == null || figure == null)
-                return;
-
-            RemoveShape(figure);
-            SelectedLayer.RemoveFigure(figure);
-        }
-
-        private void RemoveShape(Figure figure)
-        {
-            if (SelectedLayer == null)
-                return;
-
-            int index = SelectedLayer.Figures.IndexOf(figure);
-
-            Shape shape = shapes[SelectedLayer][index];
-
-            shapes[SelectedLayer].RemoveAt(index);
-
-            LinkedCanvas.Children.Remove(shape);
-        }
-
+        #region AddRemoveLayerCanvas
         public void AddLayer()
         {
             Layer layer = new Layer();
@@ -123,8 +121,8 @@ namespace WpfPaintProj2.DrawingClasses
 
             layer.SizeChanged += Layer_SizeChanged;
             layer.VisibleChanged += Layer_VisibleChanged;
-            layer.FigureAdded += Layer_FigureAdded;
-            layer.FigureRemoved += Layer_FigureRemoved;
+            layer.FigureAdded += AddShape;
+            layer.FigureRemoved += RemoveShape;
             shapes.Add(layer, new List<Shape>());
             layer.Name = "Layer #" + layers.Count;
             UpdateSize(layer);
@@ -132,31 +130,131 @@ namespace WpfPaintProj2.DrawingClasses
             AddCanvas(layer);
         }
 
-        private void Layer_FigureRemoved(object sender, EventArgs e)
+        public void RemoveLayer()
         {
-            //Layer layer = (Layer)sender;
+            if (SelectedLayer == null)
+                return;
 
-            //List<Shape> shapesList = shapes[layer];
-
-            //shapesList.
-
-            //Shape shape = GetShape(layer.Figures.Last());
-
-            //shapes[layer].Add(shape);
-
-            //canvases[layers.IndexOf(layer)].Children.Add(shape);
+            RemoveLayer(SelectedLayer);
         }
 
-        private void Layer_FigureAdded(object sender, EventArgs e)
+        public void RemoveLayer(Layer layer)
+        {
+            RemoveCanvas(layer);
+            layers.Remove(layer);
+
+            UpdateSize();
+        }
+
+        public void RemoveLayerAt(int index)
+        {
+            RemoveCanvas(index);
+            layers.RemoveAt(index);
+            UpdateSize();
+        }
+
+        private void AddCanvas(Layer layer)
+        {
+            Canvas canvas = GetCanvas(layer);
+
+            mainCanvas.Children.Add(canvas);
+
+            canvases.Add(canvas);
+        }
+
+        private void RemoveCanvas(Layer layer)
+        {
+            int index = layers.IndexOf(layer);
+            mainCanvas.Children.Remove(canvases[index]);
+            canvases.RemoveAt(index);
+        }
+
+        private void RemoveCanvas(int index)
+        {
+            mainCanvas.Children.Remove(canvases[index]);
+            canvases.RemoveAt(index);
+        }
+
+        private Canvas GetCanvas(Layer layer)
+        {
+            Canvas canvas = new Canvas();
+
+            canvas.Background = layer.Fill;
+            canvas.Width = layer.Width;
+            canvas.Height = layer.Height;
+            canvas.SetCanvasPoint(layer.X, layer.Y);
+            return canvas;
+        }
+        #endregion
+        #region AddRemoveShapeFigure
+        public void AddFigure(Figure figure)
+        {
+            if (SelectedLayer == null || figure == null)
+                return;
+
+            SelectedLayer.AddFigure(figure);
+        }
+
+        private void AddShape(object sender, FigureAddedEventArgs e)
         {
             Layer layer = (Layer)sender;
 
-            Shape shape = GetShape(layer.Figures.Last());
+            Shape shape = GetShape(e.AddedFigure);
 
             shapes[layer].Add(shape);
 
             canvases[layers.IndexOf(layer)].Children.Add(shape);
         }
+
+        public void RemoveFigure(Figure figure)
+        {
+            if (SelectedLayer == null || figure == null)
+                return;
+
+            SelectedLayer.RemoveFigure(figure);
+        }
+
+        private void RemoveShape(object sender, FigureRemovedEventArgs e)
+        {
+            Layer layer = (Layer)sender;
+
+            Shape shape = shapes[layer][e.Index];
+
+            shapes[layer].RemoveAt(e.Index);
+
+            LinkedCanvas.Children.Remove(shape);
+        }
+
+        private Shape GetShape(Figure figure)
+        {
+            Shape shape;
+
+            switch (figure.Type)
+            {
+                case StandartShapes.Ellipse:
+                    shape = new Ellipse();
+                    break;
+                case StandartShapes.Triangle:
+                    shape = new Triangle();
+                    break;
+                case StandartShapes.Rhomb:
+                    shape = new Rhomb();
+                    break;
+                default:
+                case StandartShapes.Rectangele:
+                    shape = new Rectangle();
+                    break;
+            }
+
+            shape.Stroke = figure.Fore;
+            shape.Fill = figure.Fill;
+            shape.Width = figure.Width;
+            shape.Height = figure.Height;
+            shape.SetCanvasCenterPoint(figure.X, figure.Y);
+
+            return shape;
+        }
+        #endregion
 
         private void Layer_VisibleChanged(object sender, EventArgs e)
         {
@@ -178,28 +276,7 @@ namespace WpfPaintProj2.DrawingClasses
             }
         }
 
-        public void RemoveLayer()
-        {
-            if (SelectedLayer == null)
-                return;
-
-            RemoveLayer(SelectedLayer);
-        }
-
-        public void RemoveLayer(Layer layer)
-        {
-            RemoveCanvas(layer);
-            layers.Remove(layer);    
-
-            UpdateSize();
-        }
-
-        public void RemoveLayerAt(int index)
-        {
-            RemoveCanvas(index);
-            layers.RemoveAt(index);
-            UpdateSize();
-        }
+       
 
         private void Layer_SizeChanged(object sender, EventArgs e)
         {
@@ -259,69 +336,6 @@ namespace WpfPaintProj2.DrawingClasses
             if (!layers.Contains(layer))
                 return;
             SelectedLayer = layer;
-        }
-
-        private void AddCanvas(Layer layer)
-        {
-            Canvas canvas = GetCanvas(layer);
-
-            mainCanvas.Children.Add(canvas);
-
-            canvases.Add(canvas);
-        }
-
-        private void RemoveCanvas(Layer layer)
-        {
-            int index = layers.IndexOf(layer);
-            mainCanvas.Children.Remove(canvases[index]);
-            canvases.RemoveAt(index);
-        }
-
-        private void RemoveCanvas(int index)
-        {
-            mainCanvas.Children.Remove(canvases[index]);
-            canvases.RemoveAt(index);
-        }
-
-        private Canvas GetCanvas(Layer layer)
-        {
-            Canvas canvas = new Canvas();
-
-            canvas.Background = layer.Fill;
-            canvas.Width = layer.Width;
-            canvas.Height = layer.Height;
-            canvas.SetCanvasPoint(layer.X, layer.Y);
-            return canvas;
-        }
-
-        private Shape GetShape(Figure figure)
-        {
-            Shape shape;
-
-            switch (figure.Type)
-            {
-                case StandartShapes.Ellipse:
-                    shape = new Ellipse();
-                    break;
-                case StandartShapes.Triangle:
-                    shape = new Triangle();
-                    break;
-                case StandartShapes.Rhomb:
-                    shape = new Rhomb();
-                    break;
-                default:
-                case StandartShapes.Rectangele:
-                    shape = new Rectangle();
-                    break;
-            }
-
-            shape.Stroke = figure.Fore;
-            shape.Fill = figure.Fill;
-            shape.Width = figure.Width;
-            shape.Height = figure.Height;
-            shape.SetCanvasCenterPoint(figure.X, figure.Y);
-
-            return shape;
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
