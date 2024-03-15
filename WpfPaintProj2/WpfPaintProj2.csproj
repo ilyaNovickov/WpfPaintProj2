@@ -67,6 +67,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DrawingClasses\FigureRemovedEventArgs.cs" />
+    <Compile Include="DrawingClasses\FigureAddedEventArgs.cs" />
     <Compile Include="DrawingClasses\DrawingMode.cs" />
     <Compile Include="DrawingClasses\DrawingField1.cs" />
     <Compile Include="DrawingClasses\Layer.cs" />

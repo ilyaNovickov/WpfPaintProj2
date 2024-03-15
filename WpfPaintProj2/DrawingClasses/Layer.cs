@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace WpfPaintProj2.DrawingClasses
@@ -67,26 +68,29 @@ namespace WpfPaintProj2.DrawingClasses
 
         public event EventHandler VisibleChanged;
 
-        public event EventHandler FigureAdded;
+        public event EventHandler<FigureAddedEventArgs> FigureAdded;
 
-        public event EventHandler FigureRemoved;
+        public event EventHandler<FigureRemovedEventArgs> FigureRemoved;
 
         public void AddFigure(Figure figure)
         {
             figures.Add(figure);
-            FigureAdded?.Invoke(this, EventArgs.Empty);
+            FigureAdded?.Invoke(this, new FigureAddedEventArgs(figure));
         }
 
         public void RemoveFigure(Figure figure)
         {
             figures.Remove(figure);
-            FigureRemoved?.Invoke(this, EventArgs.Empty);
+            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure));
         }
 
         public void RemoveAt(int index)
         {
+            Figure figure = figures[index];
+
             figures.RemoveAt(index);
-            FigureRemoved?.Invoke(this, EventArgs.Empty);
+
+            FigureRemoved?.Invoke(this, new FigureRemovedEventArgs(figure));
         }
     }
 }
