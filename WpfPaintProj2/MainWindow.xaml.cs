@@ -40,7 +40,7 @@ namespace WpfPaintProj2
 
         private void removeLayerButton_Click(object sender, RoutedEventArgs e)
         {
-            drawingField.RemoveLayer();
+            drawingField.RemoveSelectedLayer();
         }
 
         private void addLayerButton_Click(object sender, RoutedEventArgs e)
@@ -76,7 +76,7 @@ namespace WpfPaintProj2
                 Type = shapeToAdd
             };
 
-            drawingField.AddFigure(figure);
+            drawingField.AddFigureToSelectedLayer(figure);
 
             drawingField.SelectedLayer.SelectedFigure = figure;
 
@@ -85,7 +85,7 @@ namespace WpfPaintProj2
 
         private void removeFigureButton_Click(object sender, RoutedEventArgs e)
         {
-            drawingField.RemoveFigure(drawingField.SelectedLayer.SelectedFigure);
+            drawingField.RemoveFigureInSelectedLayer(drawingField.SelectedLayer.SelectedFigure);
         }
 
         private void undoButton_Click(object sender, RoutedEventArgs e)

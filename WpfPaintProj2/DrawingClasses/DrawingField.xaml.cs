@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +21,7 @@ namespace WpfPaintProj2.DrawingClasses
     /// </summary>
     public partial class DrawingField : UserControl, INotifyPropertyChanged
     {
+        #region foo
         private class FigureShapeLinking
         {            
             public Figure Figure { get; }
@@ -55,7 +57,7 @@ namespace WpfPaintProj2.DrawingClasses
                 
             }
         }
-
+        #endregion
         private Layer selectedLayer = null;
 
         private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
@@ -69,8 +71,12 @@ namespace WpfPaintProj2.DrawingClasses
         public DrawingField()
         {
             InitializeComponent();
+
+            this.LayerAdded += AddCanvas;
+            this.LayerRemoved += RemoveCanvas;
         }
 
+        #region Properties
         public DrawingMode DrawingMode
         {
             get => mode;
@@ -103,7 +109,12 @@ namespace WpfPaintProj2.DrawingClasses
                 return canvases[layers.IndexOf(selectedLayer)];
             }
         }
+        #endregion
         #region AddRemoveLayerCanvas
+        public event EventHandler<LayerAddedEventArgs> LayerAdded;
+
+        public event EventHandler<LayerRemovedEventArgs> LayerRemoved;
+
         public void AddLayer()
         {
             Layer layer = new Layer();
@@ -119,18 +130,33 @@ namespace WpfPaintProj2.DrawingClasses
             if (layer == null)
                 return;
 
+            layers.Add(layer);
+
+            LayerAdded?.Invoke(this, new LayerAddedEventArgs(layer));
+        }
+
+        private void AddCanvas(object sender, LayerAddedEventArgs e)
+        {
+            Layer layer = e.Layer;
+
             layer.SizeChanged += Layer_SizeChanged;
             layer.VisibleChanged += Layer_VisibleChanged;
             layer.FigureAdded += AddShape;
             layer.FigureRemoved += RemoveShape;
-            shapes.Add(layer, new List<Shape>());
             layer.Name = "Layer #" + layers.Count;
+
+            shapes.Add(layer, new List<Shape>());
+
             UpdateSize(layer);
-            layers.Add(layer);
-            AddCanvas(layer);
+
+            Canvas canvas = GetCanvas(layer);
+
+            mainCanvas.Children.Add(canvas);
+
+            canvases.Add(canvas);
         }
 
-        public void RemoveLayer()
+        public void RemoveSelectedLayer()
         {
             if (SelectedLayer == null)
                 return;
@@ -140,39 +166,27 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void RemoveLayer(Layer layer)
         {
-            RemoveCanvas(layer);
+            int index = layers.IndexOf(layer);
             layers.Remove(layer);
-
             UpdateSize();
+
+            LayerRemoved?.Invoke(this, new LayerRemovedEventArgs(layer, index));
         }
 
         public void RemoveLayerAt(int index)
         {
-            RemoveCanvas(index);
+            Layer layer = layers[index];
             layers.RemoveAt(index);
             UpdateSize();
+
+            LayerRemoved?.Invoke(this, new LayerRemovedEventArgs(layer, index));
         }
 
-        private void AddCanvas(Layer layer)
+        private void RemoveCanvas(object sender, LayerRemovedEventArgs e)
         {
-            Canvas canvas = GetCanvas(layer);
+            canvases.RemoveAt(e.Index);
 
-            mainCanvas.Children.Add(canvas);
-
-            canvases.Add(canvas);
-        }
-
-        private void RemoveCanvas(Layer layer)
-        {
-            int index = layers.IndexOf(layer);
-            mainCanvas.Children.Remove(canvases[index]);
-            canvases.RemoveAt(index);
-        }
-
-        private void RemoveCanvas(int index)
-        {
-            mainCanvas.Children.Remove(canvases[index]);
-            canvases.RemoveAt(index);
+            mainCanvas.Children.RemoveAt(e.Index);
         }
 
         private Canvas GetCanvas(Layer layer)
@@ -187,7 +201,7 @@ namespace WpfPaintProj2.DrawingClasses
         }
         #endregion
         #region AddRemoveShapeFigure
-        public void AddFigure(Figure figure)
+        public void AddFigureToSelectedLayer(Figure figure)
         {
             if (SelectedLayer == null || figure == null)
                 return;
@@ -206,7 +220,7 @@ namespace WpfPaintProj2.DrawingClasses
             canvases[layers.IndexOf(layer)].Children.Add(shape);
         }
 
-        public void RemoveFigure(Figure figure)
+        public void RemoveFigureInSelectedLayer(Figure figure)
         {
             if (SelectedLayer == null || figure == null)
                 return;
@@ -256,28 +270,9 @@ namespace WpfPaintProj2.DrawingClasses
         }
         #endregion
 
-        private void Layer_VisibleChanged(object sender, EventArgs e)
-        {
-            int index = layers.IndexOf((Layer)sender);
+        
 
-            if (!(0 <= index && index < layers.Count))
-                return;
-
-            switch (((Layer)sender).IsVisible)
-            {
-                case true:
-                    canvases[index].Visibility = Visibility.Visible;
-                    break;
-                case false:
-                    canvases[index].Visibility = Visibility.Hidden;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-       
-
+        #region UpdateSize
         private void Layer_SizeChanged(object sender, EventArgs e)
         {
             Layer layer = (Layer)sender;
@@ -316,12 +311,33 @@ namespace WpfPaintProj2.DrawingClasses
             this.mainCanvas.Width = maxSize.Width;
             this.mainCanvas.Height = maxSize.Height;
         }
+        #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+
+        private void Layer_VisibleChanged(object sender, EventArgs e)
+        {
+            int index = layers.IndexOf((Layer)sender);
+
+            if (!(0 <= index && index < layers.Count))
+                return;
+
+            switch (((Layer)sender).IsVisible)
+            {
+                case true:
+                    canvases[index].Visibility = Visibility.Visible;
+                    break;
+                case false:
+                    canvases[index].Visibility = Visibility.Hidden;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void SetSelectedLayer(int index)
