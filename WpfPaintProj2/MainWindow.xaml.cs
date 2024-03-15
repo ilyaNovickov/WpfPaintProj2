@@ -85,6 +85,11 @@ namespace WpfPaintProj2
 
         private void removeFigureButton_Click(object sender, RoutedEventArgs e)
         {
+            if (drawingField.SelectedLayer == null)
+                return;
+            else if (drawingField.SelectedLayer.SelectedFigure == null)
+                return;
+
             drawingField.RemoveFigureInSelectedLayer(drawingField.SelectedLayer.SelectedFigure);
         }
 

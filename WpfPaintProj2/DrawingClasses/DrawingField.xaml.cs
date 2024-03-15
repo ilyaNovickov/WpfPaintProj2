@@ -132,6 +132,8 @@ namespace WpfPaintProj2.DrawingClasses
 
             layers.Add(layer);
 
+            SelectedLayer = layer;
+
             LayerAdded?.Invoke(this, new LayerAddedEventArgs(layer));
         }
 
@@ -398,5 +400,9 @@ namespace WpfPaintProj2.DrawingClasses
         {
            
         }
+
+        #region UndoRedo
+
+        #endregion
     }
 }

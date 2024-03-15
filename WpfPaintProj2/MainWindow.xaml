@@ -26,7 +26,7 @@
             <!--Для риосвания-->
 
             <drawing:DrawingField x:Name="drawingField" Grid.Column="0" Background="Gray"
-                                  MouseDown="drawingField_MouseDown"/>
+                                  PreviewMouseDown="drawingField_MouseDown"/>
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
