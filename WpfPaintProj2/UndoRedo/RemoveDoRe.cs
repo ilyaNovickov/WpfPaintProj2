@@ -18,7 +18,7 @@ namespace WpfPaintProj2.UndoRedo
         }
         public void Invoke()
         {
-            Owner.__AddShape(Args.Shape);
+            //Owner.__AddShape(Args.Shape);
         }
 
         public IUndoRedo GetInversedAction()

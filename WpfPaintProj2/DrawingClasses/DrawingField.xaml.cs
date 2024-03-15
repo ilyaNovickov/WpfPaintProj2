@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfPaintProj2.Helpers;
 using WpfPaintProj2.OwnShapes;
+using WpfPaintProj2.UndoRedo;
 
 namespace WpfPaintProj2.DrawingClasses
 {
@@ -71,6 +72,8 @@ namespace WpfPaintProj2.DrawingClasses
         public DrawingField()
         {
             InitializeComponent();
+
+            undoManager = new UndoRedoManager(null);
         }
 
         #region Properties
@@ -274,8 +277,6 @@ namespace WpfPaintProj2.DrawingClasses
         }
         #endregion
 
-        
-
         #region UpdateSize
         private void Layer_SizeChanged(object sender, EventArgs e)
         {
@@ -403,8 +404,34 @@ namespace WpfPaintProj2.DrawingClasses
            
         }
 
-        #region UndoRedo
+        public void ResetSelectedFigure()
+        {
+            if (SelectedLayer == null)
+                return;
 
+            SelectedLayer.SelectedFigure = null;
+        }
+
+        #region UndoRedo
+        private UndoRedoManager undoManager;
+
+        public void Undo()
+        {
+            if (SelectedLayer == null)
+                return;
+
+            ResetSelectedFigure();
+            undoManager.Undo();
+        }
+
+        public void Redo()
+        {
+            if (SelectedLayer == null)
+                return;
+
+            ResetSelectedFigure();
+            undoManager.Redo();
+        }
         #endregion
     }
 }
