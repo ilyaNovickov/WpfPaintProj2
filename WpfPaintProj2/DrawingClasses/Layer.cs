@@ -28,7 +28,7 @@ namespace WpfPaintProj2.DrawingClasses
             set
             {
                 selectedFigure = value;
-
+                SelectedFigureChanged?.Invoke(this, new SelectedFigureChangedEventArgs(value));
                 OnPropertyChanged();
             }
         }
@@ -71,6 +71,8 @@ namespace WpfPaintProj2.DrawingClasses
         public event EventHandler<FigureAddedEventArgs> FigureAdded;
 
         public event EventHandler<FigureRemovedEventArgs> FigureRemoved;
+
+        public event EventHandler<SelectedFigureChangedEventArgs> SelectedFigureChanged;
 
         public void AddFigure(Figure figure)
         {

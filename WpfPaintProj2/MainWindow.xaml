@@ -95,8 +95,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="Удалить слой" Click="removeLayerButton_Click"/>
                             <Button Grid.Column="1" Content="Добавить" Click="addLayerButton_Click"/>
+                            <Button Grid.Column="0" Content="Удалить слой" Click="removeLayerButton_Click"/>
                         </Grid>
                     </Grid>
                 </Grid>

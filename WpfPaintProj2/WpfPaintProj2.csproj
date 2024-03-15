@@ -55,6 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DrawingClasses\SelectedLayerChangedEventArgs.cs" />
+    <Compile Include="DrawingClasses\SelectedFigureChangedEventArgs.cs" />
     <Compile Include="UndoRedo\AddRemoveDo.cs" />
     <Compile Include="UndoRedo\AddDoRe.cs" />
     <Compile Include="UndoRedo\RemoveDoRe.cs" />

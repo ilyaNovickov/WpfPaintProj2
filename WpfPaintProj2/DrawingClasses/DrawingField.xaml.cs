@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
+using System.Net;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using WpfPaintProj2.Helpers;
 using WpfPaintProj2.OwnShapes;
@@ -69,6 +74,12 @@ namespace WpfPaintProj2.DrawingClasses
 
         private DrawingMode mode = DrawingMode.None;
 
+        private ControlPoints controlPoints = new ControlPoints();
+
+        private ResizeDirection resizeDirection = ResizeDirection.None;
+
+        private Point oldPoint = new Point(0d, 0d);
+
         public DrawingField()
         {
             InitializeComponent();
@@ -94,7 +105,9 @@ namespace WpfPaintProj2.DrawingClasses
             get => selectedLayer;
             set
             {
+                Layer oldLayer = selectedLayer;
                 selectedLayer = value;
+                OnSelectedLayerChanged(new SelectedLayerChangedEventArgs(value, oldLayer));
                 OnPropertyChanged();
             }
         }
@@ -108,6 +121,23 @@ namespace WpfPaintProj2.DrawingClasses
 
                 return canvases[layers.IndexOf(selectedLayer)];
             }
+        }
+
+        public event EventHandler<SelectedLayerChangedEventArgs> SelectedLayerChanged;
+
+        protected virtual void OnSelectedLayerChanged(SelectedLayerChangedEventArgs e)
+        {
+            if (e.OldLayer != null)
+            {
+                e.OldLayer.SelectedFigure = null;
+                canvases[Layers.IndexOf(e.OldLayer)].IsEnabled = false;
+                //Canvas.SetZIndex(canvases[Layers.IndexOf(e.OldLayer)], 0);
+            }
+
+            canvases[Layers.IndexOf(e.Layer)].IsEnabled = true;
+            //Canvas.SetZIndex(canvases[Layers.IndexOf(e.Layer)], 1);
+
+            SelectedLayerChanged?.Invoke(this, e);
         }
         #endregion
         #region AddRemoveLayerCanvas
@@ -132,7 +162,7 @@ namespace WpfPaintProj2.DrawingClasses
 
             layers.Add(layer);
 
-            SelectedLayer = layer;
+            layer.SelectedFigureChanged += Layer_SelectedFigureChanged;
 
             OnLayerAdded(new LayerAddedEventArgs(layer));
         }
@@ -195,6 +225,8 @@ namespace WpfPaintProj2.DrawingClasses
 
             canvases.Add(canvas);
 
+            SelectedLayer = layer;
+
             LayerAdded?.Invoke(this, e);
         }
 
@@ -212,6 +244,10 @@ namespace WpfPaintProj2.DrawingClasses
         {
             if (SelectedLayer == null || figure == null)
                 return;
+
+            figure.PropertyChanged += Figure_PropertyChanged;
+            figure.Moved += Figure_Moved;
+            figure.SizeChanged += Figure_SizeChanged;
 
             SelectedLayer.AddFigure(figure);
         }
@@ -271,7 +307,7 @@ namespace WpfPaintProj2.DrawingClasses
             shape.Fill = figure.Fill;
             shape.Width = figure.Width;
             shape.Height = figure.Height;
-            shape.SetCanvasCenterPoint(figure.X, figure.Y);
+            shape.SetCanvasPoint(figure.X, figure.Y);
 
             return shape;
         }
@@ -363,45 +399,114 @@ namespace WpfPaintProj2.DrawingClasses
         {
             base.OnPreviewMouseDown(e);
 
-            return;
-
             Point pt = e.GetPosition(LinkedCanvas);
 
-            // Perform the hit test against a given portion of the visual object tree.
-            HitTestResult result = VisualTreeHelper.HitTest(LinkedCanvas, pt);
+            List<DependencyObject> hitResultsList = new List<DependencyObject>();
 
-            if (result != null)
+            HitTestFilterBehavior MyHitTestFilter(DependencyObject o)
             {
-                if (result.VisualHit is Shape)
+                // Test for the object value you want to filter.
+                if (o.GetType() == typeof(Canvas))
                 {
-
+                    // Visual object and descendants are NOT part of hit test results enumeration.
+                    return HitTestFilterBehavior.ContinueSkipSelf;
+                }
+                else
+                {
+                    // Visual object is part of hit test results enumeration.
+                    return HitTestFilterBehavior.Continue;
                 }
             }
-
-
-
-
-
-            if (LinkedCanvas == null)
-                return;
-
-            Figure figure = new Figure()
+            HitTestResultBehavior MyHitTestResult(HitTestResult result1)
             {
-                Fill = Brushes.Red,
-                Fore = Brushes.Black,
-                Width = 50d,
-                Height = 50d,
-                Location = e.GetPosition(LinkedCanvas)
-            };
+                // Add the hit test result to the list that will be processed after the enumeration.
+                hitResultsList.Add(result1.VisualHit);
 
-            SelectedLayer.AddFigure(figure);
+                // Set the behavior to return visuals at all z-order levels.
+                return HitTestResultBehavior.Continue;
+            }
 
-            
+            VisualTreeHelper.HitTest(LinkedCanvas,
+                      new HitTestFilterCallback(MyHitTestFilter),
+                      new HitTestResultCallback(MyHitTestResult),
+                      new PointHitTestParameters(pt));
+
+
+            foreach (Shape shape1 in hitResultsList)
+            {
+                if (shape1 == controlPoints.DecoRectange)
+                    continue;
+                else if (shape1 == controlPoints.MoveRectange)
+                {
+                    this.mode = DrawingMode.Dragging;
+                    this.Cursor = Cursors.SizeAll;
+                    oldPoint = pt;
+                    break;
+                }
+                else if (controlPoints.ResizeRecrangeles.Contains(shape1))
+                {
+                    this.mode = DrawingMode.Resizing;
+                    OnResizePointClicked(shape1);
+                    oldPoint = pt;
+                    break;
+                }
+                else
+                {
+                    SelectedLayer.SelectedFigure = SelectedLayer.Figures[shapes[SelectedLayer].IndexOf(shape1)];
+                    break;
+                }
+            }  
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-           
+            base.OnMouseUp(e);
+
+            mode = DrawingMode.Selecting;
+
+            this.Cursor = Cursors.Arrow;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            Point pos = e.GetPosition(LinkedCanvas);
+
+            switch (mode)
+            {
+
+                case DrawingMode.None:
+                case DrawingMode.Adding:
+                case DrawingMode.Selecting:
+                default:
+                    break;
+                case DrawingMode.Dragging:
+                    
+
+                    double dx = pos.X - oldPoint.X;
+                    double dy = pos.Y - oldPoint.Y;
+
+                    SelectedLayer.SelectedFigure.Offset(dx, dy);
+
+                    foreach (Shape shapes in controlPoints.GetControlPoints())
+                    {
+                        shapes.Offset(dx, dy);
+                    }
+
+                    //ShapeMoved?.Invoke(this, new ShapeMovedArgs(SelectedShape, SelectedShape.GetCanvasPoint(), oldPoint));
+
+                    oldPoint = pos;
+                    break;
+                case DrawingMode.Resizing:
+
+                    ResizeFigure(SelectedLayer.SelectedFigure, pos.X - oldPoint.X, pos.Y - oldPoint.Y);
+
+                    //ShapeMoved?.Invoke(this, new ShapeMovedArgs(SelectedShape, SelectedShape.GetCanvasPoint(), oldPoint));
+
+                    oldPoint = pos;
+                    break;
+            }
         }
 
         public void ResetSelectedFigure()
@@ -410,6 +515,249 @@ namespace WpfPaintProj2.DrawingClasses
                 return;
 
             SelectedLayer.SelectedFigure = null;
+        }
+
+        private void Figure_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Figure figure = sender as Figure;
+
+            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+
+            shape.SetCanvasPoint(e.NewLocation);
+
+            shape.Width = e.NewSize.Width;
+
+            shape.Height = e.NewSize.Height;
+        }
+
+        private void Figure_Moved(object sender, MovedEventArgs e)
+        {
+            Figure figure = sender as Figure;
+
+            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+
+            shape.SetCanvasPoint(e.NewLocation);
+        }
+
+        private void Figure_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Figure figure = (Figure)sender;
+            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            switch (e.PropertyName)
+            {
+                //case nameof(figure.Height):
+                //    shape.Height = figure.Height;
+                //    break;
+                //case nameof(figure.Width):
+                //    shape.Width = figure.Width;
+                //    break;
+                //case nameof(figure.Y):
+                //case nameof(figure.X):
+                //case nameof(figure.Location):
+                //    shape.SetCanvasPoint(figure.X, figure.Y);
+                //    break;
+                case nameof(figure.Fill):
+                    shape.Fill = figure.Fill;
+                    break;
+                case nameof(figure.Fore):
+                    shape.Stroke = figure.Fore;
+                    break;
+                default:
+                    return;
+            }
+            
+        }
+
+        private void Layer_SelectedFigureChanged(object sender, SelectedFigureChangedEventArgs e)
+        {
+            Layer layer = (Layer)sender;
+
+            Canvas canvas = canvases[this.Layers.IndexOf(layer)];
+
+            if (controlPoints.MoveRectange != null)
+            {
+                canvas.Children.Remove(controlPoints.MoveRectange);
+                canvas.Children.Remove(controlPoints.DecoRectange);
+                foreach (Rectangle rect in controlPoints.ResizeRecrangeles)
+                {
+                    canvas.Children.Remove(rect);
+                }
+                controlPoints.ResizeRecrangeles.Clear();
+            }
+
+            if (e.SelectedFigure == null)
+                return;
+
+            Shape shape = shapes[layer][layer.Figures.IndexOf(e.SelectedFigure)];
+
+            //Точка для декора
+            Rectangle decoRect = new Rectangle()
+            {
+                Width = shape.Width,
+                Height = shape.Height,
+                Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                Fill = Brushes.Transparent,
+                StrokeDashArray = new DoubleCollection() { 4, 4 }
+            };
+            decoRect.SetCanvasPoint(shape.GetCanvasPoint());
+            controlPoints.DecoRectange = decoRect;
+            canvas.Children.Add(decoRect);
+            //---
+            foreach (Rectangle shape1 in shape.GetShapeControlPoints())
+            {
+                
+                controlPoints.ResizeRecrangeles.Add(shape1);
+                canvas.Children.Add(shape1);
+            }
+            //---
+            Rectangle moveRect = new Rectangle();
+            moveRect.Width = 10;
+            moveRect.Height = 10;
+            moveRect.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            moveRect.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+            Canvas.SetLeft(moveRect, Canvas.GetLeft(shape) + shape.Width / 2d - moveRect.Width / 2d);
+            Canvas.SetTop(moveRect, Canvas.GetTop(shape) + shape.Height / 2d - moveRect.Height / 2d);
+            controlPoints.MoveRectange = moveRect;
+            canvas.Children.Add(moveRect);
+        }
+
+        private void OnResizePointClicked(Shape shape)
+        {
+            switch (shape.Name)
+            {
+                case "TOP":
+                    this.Cursor = Cursors.ScrollN;
+                    resizeDirection = ResizeDirection.Top;
+                    break;
+                case "BOTTOM":
+                    this.Cursor = Cursors.ScrollS;
+                    resizeDirection = ResizeDirection.Bottom;
+                    break;
+                case "LEFT":
+                    this.Cursor = Cursors.ScrollW;
+                    resizeDirection = ResizeDirection.Left;
+                    break;
+                case "RIGHT":
+                    this.Cursor = Cursors.ScrollE;
+                    resizeDirection = ResizeDirection.Right;
+                    break;
+                case "TOPLEFT":
+                    this.Cursor = Cursors.ScrollNW;
+                    resizeDirection = ResizeDirection.TopLeft;
+                    break;
+                case "TOPRIGHT":
+                    this.Cursor = Cursors.ScrollNE;
+                    resizeDirection = ResizeDirection.TopRight;
+                    break;
+                case "BOTTOMLEFT":
+                    this.Cursor = Cursors.ScrollSW;
+                    resizeDirection = ResizeDirection.BottomLeft;
+                    break;
+                case "BOTTOMRIGHT":
+                    this.Cursor = Cursors.ScrollSE;
+                    resizeDirection = ResizeDirection.BottomRight;
+                    break;
+                default:
+                    throw new Exception("Неизвесная точка");
+
+            }
+        }
+
+        private void ResizeFigure(Figure figure, double dx, double dy)
+        {
+            try
+            {
+                double newWidth = figure.Width;
+                double newHeight = figure.Height;
+                Point newLocation = figure.Location;
+
+                switch (this.resizeDirection)
+                {
+                    case ResizeDirection.Top:
+                        newHeight -= dy;
+                        newLocation.Offset(0, dy);
+                        break;
+                    case ResizeDirection.Bottom:
+                        newHeight += dy;
+                        newLocation.Offset(0, 0);
+                        break;
+                    case ResizeDirection.Left:
+                        newWidth -= dx;
+                        newLocation.Offset(dx, 0);
+                        break;
+                    case ResizeDirection.Right:
+                        newWidth += dx;
+                        newLocation.Offset(0, 0);
+                        break;
+                    case ResizeDirection.TopRight:
+                        newWidth += dx;
+                        newHeight -= dy;
+                        newLocation.Offset(0, dy);
+                        break;
+                    case ResizeDirection.BottomRight:
+                        newWidth += dx;
+                        newHeight += dy;
+                        newLocation.Offset(0, 0);
+                        break;
+                    case ResizeDirection.TopLeft:
+                        newWidth -= dx;
+                        newHeight -= dy;
+                        newLocation.Offset(dx, dy);
+                        break;
+                    case ResizeDirection.BottomLeft:
+                        newWidth -= dx;
+                        newHeight += dy;
+                        newLocation.Offset(dx, 0);
+                        break;
+                    case ResizeDirection.None:
+                    default:
+                        return; ;
+                }
+
+                if (newWidth <= 0 || newHeight <= 0)
+                    return;
+
+                figure.Location = newLocation;
+                figure.Width = newWidth;
+                figure.Height = newHeight;
+
+                Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+
+                int index = 0;
+                foreach (KeyValuePair<string, Point> pair in shape.GetPointsofBorderControlPoints())
+                {
+                    controlPoints.ResizeRecrangeles[index].SetCanvasCenterPoint(pair.Value.X, pair.Value.Y);
+                    index++;
+                }
+                controlPoints.MoveRectange.SetCanvasCenterPoint(Canvas.GetLeft(shape) + shape.Width / 2d,
+                    Canvas.GetTop(shape) + shape.Height / 2d);
+                controlPoints.DecoRectange.SetCanvasPoint(shape.GetCanvasPoint().X, shape.GetCanvasPoint().Y);
+                controlPoints.DecoRectange.Width = shape.Width;
+                controlPoints.DecoRectange.Height = shape.Height;
+            }
+            catch { }
+        }
+
+        private class ControlPoints
+        {
+            public Canvas Canvas { get; set; }
+
+            private List<Rectangle> resizeRectangles = new List<Rectangle>();
+
+            public Rectangle MoveRectange { get; set; }
+            public Rectangle DecoRectange { get; set; }
+            public List<Rectangle> ResizeRecrangeles
+            {
+                get => resizeRectangles;
+                set => resizeRectangles = value;
+            }
+
+            public List<Shape> GetControlPoints()
+            {
+                List<Shape> list = new List<Shape>() { MoveRectange, DecoRectange };
+                list.AddRange(ResizeRecrangeles);
+                return list;
+            }
         }
 
         #region UndoRedo
