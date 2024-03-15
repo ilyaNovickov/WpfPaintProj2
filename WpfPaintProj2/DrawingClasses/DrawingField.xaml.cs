@@ -71,9 +71,6 @@ namespace WpfPaintProj2.DrawingClasses
         public DrawingField()
         {
             InitializeComponent();
-
-            this.LayerAdded += AddCanvas;
-            this.LayerRemoved += RemoveCanvas;
         }
 
         #region Properties
@@ -134,10 +131,48 @@ namespace WpfPaintProj2.DrawingClasses
 
             SelectedLayer = layer;
 
-            LayerAdded?.Invoke(this, new LayerAddedEventArgs(layer));
+            OnLayerAdded(new LayerAddedEventArgs(layer));
         }
 
-        private void AddCanvas(object sender, LayerAddedEventArgs e)
+        public void RemoveSelectedLayer()
+        {
+            if (SelectedLayer == null)
+                return;
+
+            RemoveLayer(SelectedLayer);
+        }
+
+        public void RemoveLayer(Layer layer)
+        {
+            int index = layers.IndexOf(layer);
+            layers.Remove(layer);
+            UpdateSize();
+
+            OnLayerRemoved(new LayerRemovedEventArgs(layer, index));
+        }
+
+        public void RemoveLayerAt(int index)
+        {
+            Layer layer = layers[index];
+            layers.RemoveAt(index);
+            UpdateSize();
+
+            OnLayerRemoved(new LayerRemovedEventArgs(layer, index));
+        }
+
+
+        private Canvas GetCanvas(Layer layer)
+        {
+            Canvas canvas = new Canvas();
+
+            canvas.Background = layer.Fill;
+            canvas.Width = layer.Width;
+            canvas.Height = layer.Height;
+            canvas.SetCanvasPoint(layer.X, layer.Y);
+            return canvas;
+        }
+
+        protected virtual void OnLayerAdded(LayerAddedEventArgs e)
         {
             Layer layer = e.Layer;
 
@@ -156,50 +191,17 @@ namespace WpfPaintProj2.DrawingClasses
             mainCanvas.Children.Add(canvas);
 
             canvases.Add(canvas);
+
+            LayerAdded?.Invoke(this, e);
         }
 
-        public void RemoveSelectedLayer()
-        {
-            if (SelectedLayer == null)
-                return;
-
-            RemoveLayer(SelectedLayer);
-        }
-
-        public void RemoveLayer(Layer layer)
-        {
-            int index = layers.IndexOf(layer);
-            layers.Remove(layer);
-            UpdateSize();
-
-            LayerRemoved?.Invoke(this, new LayerRemovedEventArgs(layer, index));
-        }
-
-        public void RemoveLayerAt(int index)
-        {
-            Layer layer = layers[index];
-            layers.RemoveAt(index);
-            UpdateSize();
-
-            LayerRemoved?.Invoke(this, new LayerRemovedEventArgs(layer, index));
-        }
-
-        private void RemoveCanvas(object sender, LayerRemovedEventArgs e)
+        protected virtual void OnLayerRemoved(LayerRemovedEventArgs e)
         {
             canvases.RemoveAt(e.Index);
 
             mainCanvas.Children.RemoveAt(e.Index);
-        }
 
-        private Canvas GetCanvas(Layer layer)
-        {
-            Canvas canvas = new Canvas();
-
-            canvas.Background = layer.Fill;
-            canvas.Width = layer.Width;
-            canvas.Height = layer.Height;
-            canvas.SetCanvasPoint(layer.X, layer.Y);
-            return canvas;
+            LayerRemoved?.Invoke(this, e);
         }
         #endregion
         #region AddRemoveShapeFigure
