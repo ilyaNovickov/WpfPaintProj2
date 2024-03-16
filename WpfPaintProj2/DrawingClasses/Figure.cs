@@ -9,7 +9,7 @@ namespace WpfPaintProj2.DrawingClasses
 {
     public class Figure : PositionObject
     {
-        private string name = $"{StandartShapes.Rectangele.ToString()} [{0}, {0}]";
+        private string name = $"{StandartShapes.Rectangele} [{0}, {0}]";
         private Brush fill = Brushes.White;
         private Brush fore = Brushes.Black;
         private StandartShapes shapeType = StandartShapes.Rectangele;
@@ -20,7 +20,7 @@ namespace WpfPaintProj2.DrawingClasses
             set
             {
                 shapeType = value;
-                Name = $"{this.Type.ToString()} [{X}, {Y}]";
+                Name = $"{this.Type} [{X}, {Y}]";
                 OnPropertyChanged();
             }
         }
@@ -59,7 +59,7 @@ namespace WpfPaintProj2.DrawingClasses
         {
             base.OnMoved(e);
 
-            Name = $"{this.Type.ToString()} [{X}, {Y}]";
+            Name = $"{this.Type} [{X}, {Y}]";
         }
     }
 }
