@@ -486,10 +486,7 @@ namespace WpfPaintProj2.DrawingClasses
 
                     SelectedLayer.SelectedFigure.Offset(dx, dy);
 
-                    foreach (Shape shapes in controlPoints.GetControlPoints())
-                    {
-                        shapes.Offset(dx, dy);
-                    }
+                    
 
                     //ShapeMoved?.Invoke(this, new ShapeMovedArgs(SelectedShape, SelectedShape.GetCanvasPoint(), oldPoint));
 
@@ -528,6 +525,18 @@ namespace WpfPaintProj2.DrawingClasses
             shape.Width = e.NewSize.Width;
 
             shape.Height = e.NewSize.Height;
+
+            int index = 0;
+            foreach (KeyValuePair<string, Point> pair in shape.GetPointsofBorderControlPoints())
+            {
+                controlPoints.ResizeRecrangeles[index].SetCanvasCenterPoint(pair.Value.X, pair.Value.Y);
+                index++;
+            }
+            controlPoints.MoveRectange.SetCanvasCenterPoint(Canvas.GetLeft(shape) + shape.Width / 2d,
+                Canvas.GetTop(shape) + shape.Height / 2d);
+            controlPoints.DecoRectange.SetCanvasPoint(shape.GetCanvasPoint().X, shape.GetCanvasPoint().Y);
+            controlPoints.DecoRectange.Width = shape.Width;
+            controlPoints.DecoRectange.Height = shape.Height;
         }
 
         private void Figure_Moved(object sender, MovedEventArgs e)
@@ -540,6 +549,14 @@ namespace WpfPaintProj2.DrawingClasses
             Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
 
             shape.SetCanvasPoint(e.NewLocation);
+
+            if (controlPoints.GetControlPoints().Count == 0)
+                return;
+
+            foreach (Shape shapes in controlPoints.GetControlPoints())
+            {
+                shapes.Offset(e.Dx, e.Dy);
+            }
         }
 
         private void Figure_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -746,22 +763,12 @@ namespace WpfPaintProj2.DrawingClasses
                 figure.Width = newWidth;
                 figure.Height = newHeight;
 
-                Layer layer = GetLayerByFigure(figure);
+                //Layer layer = GetLayerByFigure(figure);
 
                 //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
-                Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
+                //Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
 
-                int index = 0;
-                foreach (KeyValuePair<string, Point> pair in shape.GetPointsofBorderControlPoints())
-                {
-                    controlPoints.ResizeRecrangeles[index].SetCanvasCenterPoint(pair.Value.X, pair.Value.Y);
-                    index++;
-                }
-                controlPoints.MoveRectange.SetCanvasCenterPoint(Canvas.GetLeft(shape) + shape.Width / 2d,
-                    Canvas.GetTop(shape) + shape.Height / 2d);
-                controlPoints.DecoRectange.SetCanvasPoint(shape.GetCanvasPoint().X, shape.GetCanvasPoint().Y);
-                controlPoints.DecoRectange.Width = shape.Width;
-                controlPoints.DecoRectange.Height = shape.Height;
+               
             }
             catch { }
         }
