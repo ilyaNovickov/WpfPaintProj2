@@ -72,15 +72,13 @@
     </ApplicationDefinition>
     <Compile Include="DrawingClasses\SelectedLayerChangedEventArgs.cs" />
     <Compile Include="DrawingClasses\SelectedFigureChangedEventArgs.cs" />
-    <Compile Include="UndoRedo\AddRemoveDo.cs" />
+    <Compile Include="UndoRedo\AddRemoveDoArgs.cs" />
     <Compile Include="UndoRedo\AddDoRe.cs" />
     <Compile Include="UndoRedo\RemoveDoRe.cs" />
-    <Compile Include="UndoRedo\MoveDo.cs" />
+    <Compile Include="UndoRedo\MoveDoArgs.cs" />
     <Compile Include="UndoRedo\MoveDoRe.cs" />
-    <Compile Include="UndoRedo\ResizeDo.cs" />
+    <Compile Include="UndoRedo\ResizeDoArgs.cs" />
     <Compile Include="UndoRedo\ResizeDoRe.cs" />
-    <Compile Include="UndoRedo\ResizeDoAction.cs" />
-    <Compile Include="UndoRedo\DoBase.cs" />
     <Compile Include="UndoRedo\UndoRedoManager.cs" />
     <Compile Include="UndoRedo\IUndoRedo.cs" />
     <Page Include="DrawingClasses\DrawingField.xaml">

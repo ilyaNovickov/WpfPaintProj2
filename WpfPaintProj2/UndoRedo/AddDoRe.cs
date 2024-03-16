@@ -10,24 +10,25 @@ namespace WpfPaintProj2.UndoRedo
     public class AddDoRe : IUndoRedo
     {
         public DrawingField DrawingField { get; }
-        public Layer Owner { get; private set; }
-        public AddRemoveDo Args { get; private set; }
+        public Layer Layer { get; }
 
-        public AddDoRe(Layer layer, AddRemoveDo args, DrawingField drawingField)
+        public AddRemoveDoArgs Args { get; }
+
+        public AddDoRe(Layer layer, AddRemoveDoArgs args, DrawingField drawingField)
         {
             Args = args;
-            Owner = layer;
+            Layer = layer;
             DrawingField = drawingField;
         }
 
         public void Invoke()
         {
-            this.DrawingField.RemoveFigureInSelectedLayer_Internal(Args.Shape, Owner);
+            this.DrawingField.RemoveFigureInSelectedLayer_Internal(Args.Shape, Layer);
         }
 
         public IUndoRedo GetInversedAction()
         {
-            return new RemoveDoRe(this.Owner, this.Args, this.DrawingField);
+            return new RemoveDoRe(this.Layer, this.Args, this.DrawingField);
         }
     }
 }

@@ -11,13 +11,13 @@ namespace WpfPaintProj2.UndoRedo
 {
     public class ResizeDoRe : IUndoRedo
     {
-        public Layer Owner { get; private set; }
-        public ResizeDo Args { get; private set; }
+        public Layer Layer { get; }
+        public ResizeDoArgs Args { get; }
 
-        public ResizeDoRe(Layer layer, ResizeDo args)
+        public ResizeDoRe(Layer layer, ResizeDoArgs args)
         {
             Args = args;
-            Owner = layer;
+            Layer = layer;
         }
 
         public void Invoke()
@@ -30,8 +30,8 @@ namespace WpfPaintProj2.UndoRedo
 
         public IUndoRedo GetInversedAction()
         {
-            return new ResizeDoRe(this.Owner,
-                new ResizeDo(Args.Figure,
+            return new ResizeDoRe(this.Layer,
+                new ResizeDoArgs(Args.Figure,
                 Args.NewPosition, Args.OldPosition,
                 Args.NewSize, Args.OldSize));
         }

@@ -9,18 +9,24 @@ using WpfPaintProj2.DrawingClasses;
 
 namespace WpfPaintProj2.UndoRedo
 {
-    public struct MoveDo
+    public readonly struct ResizeDoArgs
     {
-        public MoveDo(Figure figure, Point old, Point point)
+        public ResizeDoArgs(Figure figure, Point old, Point point, Size oldSize, Size newSize)
         {
             Figure = figure;
             OldPosition = old;
             NewPosition = point;
+            OldSize = oldSize;
+            NewSize = newSize;
         }
         public Figure Figure { get; }
 
         public Point OldPosition { get; }
 
         public Point NewPosition { get; }
+
+        public Size OldSize { get; }
+
+        public Size NewSize { get; }
     }
 }

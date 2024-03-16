@@ -245,7 +245,7 @@ namespace WpfPaintProj2.DrawingClasses
             if (SelectedLayer == null || figure == null)
                 return;
 
-            undoManager.RegistrAction(new AddDoRe(SelectedLayer, new AddRemoveDo(figure), this));
+            undoManager.RegistrAction(new AddDoRe(SelectedLayer, new AddRemoveDoArgs(figure), this));
 
             AddFigureToSelectedLayer_Internal(figure, SelectedLayer);
         }
@@ -280,7 +280,7 @@ namespace WpfPaintProj2.DrawingClasses
             if (SelectedLayer == null || figure == null)
                 return;
 
-            undoManager.RegistrAction(new RemoveDoRe(SelectedLayer, new AddRemoveDo(figure), this));
+            undoManager.RegistrAction(new RemoveDoRe(SelectedLayer, new AddRemoveDoArgs(figure), this));
 
             RemoveFigureInSelectedLayer_Internal(figure, SelectedLayer);
         }
@@ -489,10 +489,10 @@ namespace WpfPaintProj2.DrawingClasses
             base.OnMouseUp(e);
 
             if (mode == DrawingMode.Dragging)
-                undoManager.RegistrAction(new MoveDoRe(SelectedLayer, new MoveDo(SelectedLayer.SelectedFigure, oldShapePosition,
+                undoManager.RegistrAction(new MoveDoRe(SelectedLayer, new MoveDoArgs(SelectedLayer.SelectedFigure, oldShapePosition,
                         SelectedLayer.SelectedFigure.Location)));
             else if (mode == DrawingMode.Resizing)
-                undoManager.RegistrAction(new ResizeDoRe(SelectedLayer, new ResizeDo(SelectedLayer.SelectedFigure, oldShapePosition,
+                undoManager.RegistrAction(new ResizeDoRe(SelectedLayer, new ResizeDoArgs(SelectedLayer.SelectedFigure, oldShapePosition,
                     SelectedLayer.SelectedFigure.Location, oldSize, 
                     new Size(SelectedLayer.SelectedFigure.Width, SelectedLayer.SelectedFigure.Height))));
 

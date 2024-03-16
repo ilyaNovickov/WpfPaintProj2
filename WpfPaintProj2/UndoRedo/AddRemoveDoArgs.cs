@@ -8,9 +8,9 @@ using WpfPaintProj2.DrawingClasses;
 
 namespace WpfPaintProj2.UndoRedo
 {
-    public struct AddRemoveDo
+    public readonly struct AddRemoveDoArgs
     {
-        public AddRemoveDo(Figure shape)
+        public AddRemoveDoArgs(Figure shape)
         {
             Shape = shape;
         }
