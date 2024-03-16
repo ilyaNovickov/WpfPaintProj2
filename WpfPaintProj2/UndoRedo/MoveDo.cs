@@ -5,18 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Shapes;
 using System.Windows;
+using WpfPaintProj2.DrawingClasses;
 
 namespace WpfPaintProj2.UndoRedo
 {
     public struct MoveDo
     {
-        public MoveDo(Shape shape, Point old, Point point)
+        public MoveDo(Figure shape, Point old, Point point)
         {
             Shape = shape;
             OldPosition = old;
             NewPosition = point;
         }
-        public Shape Shape { get; }
+        public Figure Shape { get; }
 
         public Point OldPosition { get; }
 

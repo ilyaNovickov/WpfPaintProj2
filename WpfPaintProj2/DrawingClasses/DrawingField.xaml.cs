@@ -440,6 +440,7 @@ namespace WpfPaintProj2.DrawingClasses
                 {
                     this.mode = DrawingMode.Dragging;
                     this.Cursor = Cursors.SizeAll;
+                    oldShapePosition = SelectedLayer.SelectedFigure.Location;
                     oldPoint = pt;
                     break;
                 }
@@ -447,6 +448,8 @@ namespace WpfPaintProj2.DrawingClasses
                 {
                     this.mode = DrawingMode.Resizing;
                     OnResizePointClicked(shape1);
+                    oldShapePosition = SelectedLayer.SelectedFigure.Location;
+                    oldSize = SelectedLayer.SelectedFigure.Size;
                     oldPoint = pt;
                     break;
                 }
@@ -461,6 +464,14 @@ namespace WpfPaintProj2.DrawingClasses
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
+
+            if (mode == DrawingMode.Dragging)
+                undoManager.RegistrAction(new MoveDoRe(SelectedLayer, new MoveDo(SelectedLayer.SelectedFigure, oldShapePosition,
+                        SelectedLayer.SelectedFigure.Location)));
+            else if (mode == DrawingMode.Resizing)
+                undoManager.RegistrAction(new ResizeDoRe(SelectedLayer, new ResizeDo(SelectedLayer.SelectedFigure, oldShapePosition,
+                    SelectedLayer.SelectedFigure.Location, oldSize, 
+                    new Size(SelectedLayer.SelectedFigure.Width, SelectedLayer.SelectedFigure.Height))));
 
             mode = DrawingMode.Selecting;
 
@@ -521,7 +532,10 @@ namespace WpfPaintProj2.DrawingClasses
         {
             Figure figure = sender as Figure;
 
-            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            Layer layer = GetLayerByFigure(figure);
+
+            //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
 
             shape.SetCanvasPoint(e.NewLocation);
 
@@ -534,7 +548,10 @@ namespace WpfPaintProj2.DrawingClasses
         {
             Figure figure = sender as Figure;
 
-            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            Layer layer = GetLayerByFigure(figure);
+
+            //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
 
             shape.SetCanvasPoint(e.NewLocation);
         }
@@ -542,7 +559,20 @@ namespace WpfPaintProj2.DrawingClasses
         private void Figure_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Figure figure = (Figure)sender;
-            Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+
+            Layer layer = null;
+
+            foreach (Layer layer1 in layers)
+            {
+                if (!layer1.Figures.Contains(figure))
+                    continue;
+                layer = layer1;
+                break;
+            }
+
+            //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+            Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
+
             switch (e.PropertyName)
             {
                 //case nameof(figure.Height):
@@ -721,7 +751,10 @@ namespace WpfPaintProj2.DrawingClasses
                 figure.Width = newWidth;
                 figure.Height = newHeight;
 
-                Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+                Layer layer = GetLayerByFigure(figure);
+
+                //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
+                Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
 
                 int index = 0;
                 foreach (KeyValuePair<string, Point> pair in shape.GetPointsofBorderControlPoints())
@@ -736,6 +769,21 @@ namespace WpfPaintProj2.DrawingClasses
                 controlPoints.DecoRectange.Height = shape.Height;
             }
             catch { }
+        }
+
+        private Layer GetLayerByFigure(Figure figure)
+        {
+            Layer layer = null;
+
+            foreach (Layer layer1 in layers)
+            {
+                if (!layer1.Figures.Contains(figure))
+                    continue;
+                layer = layer1;
+                break;
+            }
+
+            return layer;
         }
 
         private class ControlPoints
@@ -762,6 +810,10 @@ namespace WpfPaintProj2.DrawingClasses
 
         #region UndoRedo
         private UndoRedoManager undoManager;
+
+        private Point oldShapePosition = new Point(0d, 0d);
+
+        private Size oldSize = new Size(0d, 0d);
 
         public void Undo()
         {

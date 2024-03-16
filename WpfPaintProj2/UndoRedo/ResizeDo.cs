@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Shapes;
 using System.Windows;
+using WpfPaintProj2.DrawingClasses;
 
 namespace WpfPaintProj2.UndoRedo
 {
     public struct ResizeDo
     {
-        public ResizeDo(Shape shape, Point old, Point point, Size oldSize, Size newSize)
+        public ResizeDo(Figure shape, Point old, Point point, Size oldSize, Size newSize)
         {
             Shape = shape;
             OldPosition = old;
@@ -18,7 +19,7 @@ namespace WpfPaintProj2.UndoRedo
             OldSize = oldSize;
             NewSize = newSize;
         }
-        public Shape Shape { get; }
+        public Figure Shape { get; }
 
         public Point OldPosition { get; }
 

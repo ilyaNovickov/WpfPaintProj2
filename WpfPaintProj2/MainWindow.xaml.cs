@@ -95,12 +95,12 @@ namespace WpfPaintProj2
 
         private void undoButton_Click(object sender, RoutedEventArgs e)
         {
-
+            drawingField.Undo();
         }
 
         private void redoButton_Click_1(object sender, RoutedEventArgs e)
         {
-
+            drawingField.Redo();
         }
     }
 }
