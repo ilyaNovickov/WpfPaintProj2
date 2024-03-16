@@ -20,6 +20,7 @@ namespace WpfPaintProj2.DrawingClasses
             set
             {
                 shapeType = value;
+                Name = $"{this.Type.ToString()} [{X}, {Y}]";
                 OnPropertyChanged();
             }
         }
