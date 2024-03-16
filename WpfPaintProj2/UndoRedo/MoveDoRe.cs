@@ -21,13 +21,13 @@ namespace WpfPaintProj2.UndoRedo
 
         public void Invoke()
         {
-            Args.Shape.Location = Args.OldPosition;
+            Args.Figure.Location = Args.OldPosition;
             //Args.Shape.SetCanvasPoint(Args.OldPosition);
         }
 
         public IUndoRedo GetInversedAction()
         {
-            return new MoveDoRe(this.Owner, new MoveDo(Args.Shape, Args.NewPosition, Args.OldPosition));
+            return new MoveDoRe(this.Owner, new MoveDo(Args.Figure, Args.NewPosition, Args.OldPosition));
         }
     }
 }

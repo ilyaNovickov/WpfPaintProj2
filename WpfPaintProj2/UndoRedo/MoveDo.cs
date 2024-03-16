@@ -11,13 +11,13 @@ namespace WpfPaintProj2.UndoRedo
 {
     public struct MoveDo
     {
-        public MoveDo(Figure shape, Point old, Point point)
+        public MoveDo(Figure figure, Point old, Point point)
         {
-            Shape = shape;
+            Figure = figure;
             OldPosition = old;
             NewPosition = point;
         }
-        public Figure Shape { get; }
+        public Figure Figure { get; }
 
         public Point OldPosition { get; }
 

@@ -6,33 +6,33 @@ using System.Threading.Tasks;
 
 namespace WpfPaintProj2.UndoRedo
 {
-    public abstract class DoBase<T, K> : IUndoRedo where T : Delegate where K : struct
-    {
-        protected T action;
-        protected T inverseAction;
-        protected K args;
+    //public abstract class DoBase<T, K> : IUndoRedo where T : Delegate where K : struct
+    //{
+    //    protected T action;
+    //    protected T inverseAction;
+    //    protected K args;
 
-        public DoBase(T action, T inverseAction, K args)
-        {
-            this.action = action;
-            this.inverseAction = inverseAction;
-            this.args = args;
-        }
+    //    public DoBase(T action, T inverseAction, K args)
+    //    {
+    //        this.action = action;
+    //        this.inverseAction = inverseAction;
+    //        this.args = args;
+    //    }
 
-        public event EventHandler InversedActionInvoked;
+    //    public event EventHandler InversedActionInvoked;
 
-        public T Action { get { return action; } }
-        public T InverseAction { get { return inverseAction; } }
-        public K Args { get { return args; } }
+    //    public T Action { get { return action; } }
+    //    public T InverseAction { get { return inverseAction; } }
+    //    public K Args { get { return args; } }
 
-        public void Invoke()
-        {
-            _Invoke();
-            InversedActionInvoked?.Invoke(this, EventArgs.Empty);
-        }
+    //    public void Invoke()
+    //    {
+    //        _Invoke();
+    //        InversedActionInvoked?.Invoke(this, EventArgs.Empty);
+    //    }
 
-        protected abstract void _Invoke();
+    //    protected abstract void _Invoke();
 
-        public abstract IUndoRedo GetInversedAction();
-    }
+    //    public abstract IUndoRedo GetInversedAction();
+    //}
 }

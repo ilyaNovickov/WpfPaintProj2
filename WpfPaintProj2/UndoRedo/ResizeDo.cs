@@ -11,15 +11,15 @@ namespace WpfPaintProj2.UndoRedo
 {
     public struct ResizeDo
     {
-        public ResizeDo(Figure shape, Point old, Point point, Size oldSize, Size newSize)
+        public ResizeDo(Figure figure, Point old, Point point, Size oldSize, Size newSize)
         {
-            Shape = shape;
+            Figure = figure;
             OldPosition = old;
             NewPosition = point;
             OldSize = oldSize;
             NewSize = newSize;
         }
-        public Figure Shape { get; }
+        public Figure Figure { get; }
 
         public Point OldPosition { get; }
 

@@ -22,16 +22,16 @@ namespace WpfPaintProj2.UndoRedo
 
         public void Invoke()
         {
-            Args.Shape.Location = Args.OldPosition;
+            Args.Figure.Location = Args.OldPosition;
             //Args.Shape.SetCanvasPoint(Args.OldPosition);
-            Args.Shape.Width = Args.OldSize.Width;
-            Args.Shape.Height = Args.OldSize.Height;
+            Args.Figure.Width = Args.OldSize.Width;
+            Args.Figure.Height = Args.OldSize.Height;
         }
 
         public IUndoRedo GetInversedAction()
         {
             return new ResizeDoRe(this.Owner,
-                new ResizeDo(Args.Shape,
+                new ResizeDo(Args.Figure,
                 Args.NewPosition, Args.OldPosition,
                 Args.NewSize, Args.OldSize));
         }
