@@ -292,8 +292,8 @@ namespace WpfPaintProj2.DrawingClasses
                     break;
             }
 
-            shape.Stroke = figure.Fore;
-            shape.Fill = figure.Fill;
+            shape.Stroke =  new SolidColorBrush(figure.Fore);
+            shape.Fill = new SolidColorBrush(figure.Fill);
             shape.Width = figure.Width;
             shape.Height = figure.Height;
             shape.SetCanvasPoint(figure.X, figure.Y);
@@ -573,10 +573,10 @@ namespace WpfPaintProj2.DrawingClasses
                 //    shape.SetCanvasPoint(figure.X, figure.Y);
                 //    break;
                 case nameof(figure.Fill):
-                    shape.Fill = figure.Fill;
+                    shape.Fill = new SolidColorBrush(figure.Fill);
                     break;
                 case nameof(figure.Fore):
-                    shape.Stroke = figure.Fore;
+                    shape.Stroke = new SolidColorBrush(figure.Fore);
                     break;
                 default:
                     return;

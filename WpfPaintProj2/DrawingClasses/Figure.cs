@@ -10,8 +10,8 @@ namespace WpfPaintProj2.DrawingClasses
     public class Figure : PositionObject
     {
         private string name = $"{StandartShapes.Rectangele} [{0}, {0}]";
-        private Brush fill = Brushes.White;
-        private Brush fore = Brushes.Black;
+        private Color fill = Colors.White;// Brushes.White;
+        private Color fore = Colors.Black;// Brushes.Black;
         private StandartShapes shapeType = StandartShapes.Rectangele;
 
         public StandartShapes Type
@@ -25,7 +25,7 @@ namespace WpfPaintProj2.DrawingClasses
             }
         }
 
-        public Brush Fill
+        public Color Fill
         {
             get => fill;
             set
@@ -35,7 +35,7 @@ namespace WpfPaintProj2.DrawingClasses
             }
         }
 
-        public Brush Fore
+        public Color Fore
         {
             get => fore;
             set

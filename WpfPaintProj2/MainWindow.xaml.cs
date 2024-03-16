@@ -71,8 +71,8 @@ namespace WpfPaintProj2
 
             Figure figure = new Figure()
             {
-                Fill = Brushes.White,
-                Fore = Brushes.Black,
+                Fill = Colors.White,
+                Fore = Colors.Black,
                 Size = new Size(50d, 50d),
                 Location = e.GetPosition(drawingField.LinkedCanvas),
                 Type = shapeToAdd
