@@ -12,7 +12,7 @@ namespace WpfPaintProj2.DrawingClasses
 {
     public class Layer : PositionObject
     {
-        private ObservableCollection<Figure> figures = new ObservableCollection<Figure>();
+        private readonly ObservableCollection<Figure> figures = new ObservableCollection<Figure>();
 
         private Figure selectedFigure = null;
 

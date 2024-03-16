@@ -27,54 +27,17 @@ namespace WpfPaintProj2.DrawingClasses
     /// </summary>
     public partial class DrawingField : UserControl, INotifyPropertyChanged
     {
-        #region foo
-        private class FigureShapeLinking
-        {            
-            public Figure Figure { get; }
-            public Shape Shape { get; }
-            public int IndexInCanvas { get; set; }
-
-            public FigureShapeLinking(Figure figure, Shape shape, int index)
-            {
-                Figure = figure;
-                Shape = shape;
-                IndexInCanvas = index;
-            }
-        }
-
-        private class LayerCanvasLinking
-        {
-            public Layer Layer { get; }
-            public Canvas Canvas { get; }
-            public int IndexInMainCanvas { get; set; }
-
-            public LayerCanvasLinking(Layer layer, Canvas canvas, int index)
-            {
-                Layer = layer;
-                Canvas = canvas;
-                IndexInMainCanvas = index;
-            }
-        }
-
-        private class asd
-        {
-            public void doo()
-            {
-                
-            }
-        }
-        #endregion
         private Layer selectedLayer = null;
 
-        private ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
+        private readonly ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
 
-        private List<Canvas> canvases = new List<Canvas>();
+        private readonly List<Canvas> canvases = new List<Canvas>();
 
-        private Dictionary<Layer, List<Shape>> shapes = new Dictionary<Layer, List<Shape>>();
+        private readonly Dictionary<Layer, List<Shape>> shapes = new Dictionary<Layer, List<Shape>>();
 
         private DrawingMode mode = DrawingMode.None;
 
-        private ControlPoints controlPoints = new ControlPoints();
+        private readonly ControlPoints controlPoints = new ControlPoints();
 
         private ResizeDirection resizeDirection = ResizeDirection.None;
 
@@ -147,10 +110,12 @@ namespace WpfPaintProj2.DrawingClasses
 
         public void AddLayer()
         {
-            Layer layer = new Layer();
-            layer.Width = 500;
-            layer.Height = 500;
-            layer.Fill = Brushes.Transparent;
+            Layer layer = new Layer
+            {
+                Width = 500,
+                Height = 500,
+                Fill = Brushes.Transparent
+            };
 
             AddLayer(layer);
         }
@@ -196,11 +161,12 @@ namespace WpfPaintProj2.DrawingClasses
 
         private Canvas GetCanvas(Layer layer)
         {
-            Canvas canvas = new Canvas();
-
-            canvas.Background = layer.Fill;
-            canvas.Width = layer.Width;
-            canvas.Height = layer.Height;
+            Canvas canvas = new Canvas
+            {
+                Background = layer.Fill,
+                Width = layer.Width,
+                Height = layer.Height
+            };
             canvas.SetCanvasPoint(layer.X, layer.Y);
             return canvas;
         }
@@ -339,8 +305,6 @@ namespace WpfPaintProj2.DrawingClasses
         #region UpdateSize
         private void Layer_SizeChanged(object sender, EventArgs e)
         {
-            Layer layer = (Layer)sender;
-
             UpdateSize();
         }
 
@@ -380,8 +344,7 @@ namespace WpfPaintProj2.DrawingClasses
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
         private void Layer_VisibleChanged(object sender, EventArgs e)
@@ -455,7 +418,7 @@ namespace WpfPaintProj2.DrawingClasses
                       new PointHitTestParameters(pt));
 
 
-            foreach (Shape shape1 in hitResultsList)
+            foreach (Shape shape1 in hitResultsList.Cast<Shape>())
             {
                 if (shape1 == controlPoints.DecoRectange)
                     continue;
@@ -656,18 +619,20 @@ namespace WpfPaintProj2.DrawingClasses
             controlPoints.DecoRectange = decoRect;
             canvas.Children.Add(decoRect);
             //---
-            foreach (Rectangle shape1 in shape.GetShapeControlPoints())
+            foreach (Rectangle shape1 in shape.GetShapeControlPoints().Cast<Rectangle>())
             {
                 
                 controlPoints.ResizeRecrangeles.Add(shape1);
                 canvas.Children.Add(shape1);
             }
             //---
-            Rectangle moveRect = new Rectangle();
-            moveRect.Width = 10;
-            moveRect.Height = 10;
-            moveRect.Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            moveRect.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+            Rectangle moveRect = new Rectangle
+            {
+                Width = 10,
+                Height = 10,
+                Fill = new SolidColorBrush(Color.FromRgb(255, 0, 0)),
+                Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0))
+            };
             Canvas.SetLeft(moveRect, Canvas.GetLeft(shape) + shape.Width / 2d - moveRect.Width / 2d);
             Canvas.SetTop(moveRect, Canvas.GetTop(shape) + shape.Height / 2d - moveRect.Height / 2d);
             controlPoints.MoveRectange = moveRect;
@@ -832,7 +797,7 @@ namespace WpfPaintProj2.DrawingClasses
         }
 
         #region UndoRedo
-        private UndoRedoManager undoManager;
+        private readonly UndoRedoManager undoManager;
 
         private Point oldShapePosition = new Point(0d, 0d);
 

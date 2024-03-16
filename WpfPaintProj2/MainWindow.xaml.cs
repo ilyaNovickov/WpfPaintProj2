@@ -30,10 +30,12 @@ namespace WpfPaintProj2
 
         private void createButton_Click(object sender, RoutedEventArgs e)
         {
-            Layer layer = new Layer();
-            layer.Width = 500;
-            layer.Height = 500;
-            layer.Fill = Brushes.White;
+            Layer layer = new Layer
+            {
+                Width = 500,
+                Height = 500,
+                Fill = Brushes.White
+            };
             drawingField.AddLayer(layer);
             drawingField.SelectedLayer = drawingField.Layers.Last();
         }
