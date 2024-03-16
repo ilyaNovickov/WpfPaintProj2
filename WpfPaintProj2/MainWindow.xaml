@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfPaintProj2"
         xmlns:drawing="clr-namespace:WpfPaintProj2.DrawingClasses"
+        xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
@@ -33,15 +34,118 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <!--Выбор фигур-->
-                <GroupBox Header="Фигуры" Grid.Row="0">
-                    <WrapPanel>
-                        <Button Content="Квадрат" x:Name="rectButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
-                        <Button Content="Эллипс" x:Name="ellipseButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
-                        <Button Content="Триугольник" x:Name="triangleButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
-                        <Button Content="Ромб" x:Name="rhombeButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
-                    </WrapPanel>
-                </GroupBox>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <!--Выбор фигур-->
+                    <GroupBox Header="Фигуры" Grid.Column="0">
+                        <WrapPanel>
+                            <Button Content="Квадрат" x:Name="rectButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                            <Button Content="Эллипс" x:Name="ellipseButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                            <Button Content="Триугольник" x:Name="triangleButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                            <Button Content="Ромб" x:Name="rhombeButton" Margin="5,5,5,5" Click="addShapeButton_Click"/>
+                        </WrapPanel>
+                    </GroupBox>
+                    <GroupBox Header="Свойства" Grid.Column="1">
+                        <toolkit:PropertyGrid SelectedObject="{Binding ElementName=drawingField, Path=SelectedLayer.SelectedFigure}"/>
+                        <!--<ScrollViewer HorizontalScrollBarVisibility="Visible">
+                            <Grid DataContext="{Binding ElementName=drawingField, Path=SelectedLayer.SelectedFigure}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Label HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Content="Имя фигуры" 
+                                       Grid.Row="0" Grid.Column="0"/>
+                                <Label HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Content="{Binding Name, TargetNullValue=-}" 
+                                       Grid.Row="0" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Content="Положение" 
+                                        Grid.Row="1" Grid.Column="0"/>
+                                <Label HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center" 
+                                    Content="{Binding Location, TargetNullValue=-}" 
+                                    Grid.Row="1" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Content="X" 
+                                        Grid.Row="2" Grid.Column="0"/>
+                                <toolkit:DoubleUpDown HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Value="{Binding X, TargetNullValue=0}" 
+                                                      MaxWidth="50"
+                                        Grid.Row="2" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Content="Y" 
+                                        Grid.Row="3" Grid.Column="0"/>
+                                <toolkit:DoubleUpDown HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Value="{Binding Y, TargetNullValue=0}" 
+                                                      MaxWidth="50"
+                                        Grid.Row="3" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center" 
+                                            Content="Размер" 
+                                            Grid.Row="4" Grid.Column="0"/>
+                                <Label HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Content="{Binding Size, TargetNullValue=0}" 
+                                        Grid.Row="4" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center" 
+                                    Content="Высота" 
+                                    Grid.Row="5" Grid.Column="0"/>
+                                <toolkit:DoubleUpDown HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center" 
+                                            Value="{Binding Height, TargetNullValue=0}" 
+                                                      Minimum="1"
+                                                          MaxWidth="50"
+                                            Grid.Row="5" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center" 
+                                        Content="Ширина" 
+                                        Grid.Row="6" Grid.Column="0"/>
+                                <toolkit:DoubleUpDown HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center" 
+                                            Value="{Binding Width, TargetNullValue=0}" 
+                                                      Minimum="1"
+                                                          MaxWidth="50"
+                                            Grid.Row="6" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+        VerticalAlignment="Center" 
+        Content="Заливка" 
+        Grid.Row="7" Grid.Column="0"/>
+                                <toolkit:PropertyGrid Grid.Row="8" Grid.Column="1" SelectedObject="{Binding Fore}">
+
+                                </toolkit:PropertyGrid>
+                                <toolkit:PropertyGridEditorColorPicker Grid.Row="7" Grid.Column="1"/>
+                                <Label HorizontalAlignment="Center" 
+VerticalAlignment="Center" 
+Content="Контур" 
+Grid.Row="8" Grid.Column="0"/>
+                                
+                            </Grid>
+                        </ScrollViewer>-->
+                    </GroupBox>
+                </Grid>
                 <!--Разное-->
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
