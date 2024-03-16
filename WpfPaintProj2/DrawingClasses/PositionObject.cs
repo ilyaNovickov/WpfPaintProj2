@@ -30,8 +30,12 @@ namespace WpfPaintProj2.DrawingClasses
             {
                 Point old = rect.Location;
                 rect.Location = value;
+                //this.X = value.X;
+                //this.Y = value.Y;
                 OnMoved(new MovedEventArgs(this, old, rect.Location));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(X));
+                OnPropertyChanged(nameof(Y));
             }
         }
 
@@ -44,6 +48,7 @@ namespace WpfPaintProj2.DrawingClasses
                 rect.X = value;
                 OnMoved(new MovedEventArgs(this, old, rect.Location));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Location));
             }
         }
 
@@ -56,6 +61,7 @@ namespace WpfPaintProj2.DrawingClasses
                 rect.Y = value;
                 OnMoved(new MovedEventArgs(this, old, rect.Location));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Location));
             }
         }
 
@@ -70,6 +76,8 @@ namespace WpfPaintProj2.DrawingClasses
                 OnSizeChanged(new SizeChangedEventArgs(this, old,
                     rect.Location, oldSize, rect.Size));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Width));
+                OnPropertyChanged(nameof(Height));
             }
         }
 
@@ -84,6 +92,7 @@ namespace WpfPaintProj2.DrawingClasses
                 OnSizeChanged(new SizeChangedEventArgs(this, old,
                     rect.Location, oldSize, rect.Size));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Size));
             }
         }
         public double Height
@@ -97,6 +106,7 @@ namespace WpfPaintProj2.DrawingClasses
                 OnSizeChanged(new SizeChangedEventArgs(this, old,
                     rect.Location, oldSize, rect.Size));
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Size));
             }
         }
 
@@ -177,6 +187,33 @@ namespace WpfPaintProj2.DrawingClasses
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+
+            //if (prop == nameof(Location))
+            //{
+            //    OnPropertyChanged(nameof(X));
+            //    OnPropertyChanged(nameof(Y));
+            //}
+            //else if (prop == nameof(X))
+            //{
+            //    OnPropertyChanged(nameof(Location));
+            //}
+            //else if (prop == nameof(Y))
+            //{
+            //    OnPropertyChanged(nameof(Location));
+            //}
+            //else if (prop == nameof(Size))
+            //{
+            //    OnPropertyChanged(nameof(Width));
+            //    OnPropertyChanged(nameof(Height));
+            //}
+            //else if (prop == nameof(Width))
+            //{
+            //    OnPropertyChanged(nameof(Size));
+            //}
+            //else if (prop == nameof(Height))
+            //{
+            //    OnPropertyChanged(nameof(Size));
+            //}
         }
     }   
      
