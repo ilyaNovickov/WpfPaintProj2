@@ -546,15 +546,7 @@ namespace WpfPaintProj2.DrawingClasses
         {
             Figure figure = (Figure)sender;
 
-            Layer layer = null;
-
-            foreach (Layer layer1 in layers)
-            {
-                if (!layer1.Figures.Contains(figure))
-                    continue;
-                layer = layer1;
-                break;
-            }
+            Layer layer = GetLayerByFigure(figure);
 
             //Shape shape = shapes[SelectedLayer][SelectedLayer.Figures.IndexOf(figure)];
             Shape shape = shapes[layer][layer.Figures.IndexOf(figure)];
@@ -577,6 +569,21 @@ namespace WpfPaintProj2.DrawingClasses
                     break;
                 case nameof(figure.Fore):
                     shape.Stroke = new SolidColorBrush(figure.Fore);
+                    break;
+                case nameof(figure.Type):
+                    Shape newShape = GetShape(figure);
+
+                    shapes[layer][shapes[layer].IndexOf(shape)] = newShape;
+
+                    canvases[Layers.IndexOf(layer)].Children.Remove(shape);
+                    canvases[Layers.IndexOf(layer)].Children.Add(newShape);
+                    shape = newShape;
+                    
+                    if (SelectedLayer != null && figure == SelectedLayer.SelectedFigure)
+                    {
+                        ResetSelectedFigure();
+                        SelectedLayer.SelectedFigure = figure;
+                    }
                     break;
                 default:
                     return;
