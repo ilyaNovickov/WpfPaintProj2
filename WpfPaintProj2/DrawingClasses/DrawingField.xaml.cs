@@ -245,11 +245,23 @@ namespace WpfPaintProj2.DrawingClasses
             if (SelectedLayer == null || figure == null)
                 return;
 
+            undoManager.RegistrAction(new AddDoRe(SelectedLayer, new AddRemoveDo(figure), this));
+
+            AddFigureToSelectedLayer_Internal(figure, SelectedLayer);
+        }
+
+        internal void AddFigureToSelectedLayer_Internal(Figure figure, Layer layer)
+        {
+            if (layer == null || figure == null)
+                return;
+
             figure.PropertyChanged += Figure_PropertyChanged;
             figure.Moved += Figure_Moved;
             figure.SizeChanged += Figure_SizeChanged;
 
-            SelectedLayer.AddFigure(figure);
+            layer.AddFigure(figure);
+            //SelectedLayer.AddFigure(figure);
+
         }
 
         private void AddShape(object sender, FigureAddedEventArgs e)
@@ -268,7 +280,17 @@ namespace WpfPaintProj2.DrawingClasses
             if (SelectedLayer == null || figure == null)
                 return;
 
-            SelectedLayer.RemoveFigure(figure);
+            undoManager.RegistrAction(new RemoveDoRe(SelectedLayer, new AddRemoveDo(figure), this));
+
+            RemoveFigureInSelectedLayer_Internal(figure, SelectedLayer);
+        }
+
+        internal void RemoveFigureInSelectedLayer_Internal(Figure figure, Layer layer)
+        {
+            if (layer == null || figure == null)
+                return;
+
+            layer.RemoveFigure(figure);
         }
 
         private void RemoveShape(object sender, FigureRemovedEventArgs e)
@@ -279,7 +301,8 @@ namespace WpfPaintProj2.DrawingClasses
 
             shapes[layer].RemoveAt(e.Index);
 
-            LinkedCanvas.Children.Remove(shape);
+            //LinkedCanvas.Children.Remove(shape);
+            canvases[layers.IndexOf(layer)].Children.Remove(shape);
         }
 
         private Shape GetShape(Figure figure)
@@ -438,7 +461,7 @@ namespace WpfPaintProj2.DrawingClasses
                     continue;
                 else if (shape1 == controlPoints.MoveRectange)
                 {
-                    this.mode = DrawingMode.Dragging;
+                    this.DrawingMode = DrawingMode.Dragging;
                     this.Cursor = Cursors.SizeAll;
                     oldShapePosition = SelectedLayer.SelectedFigure.Location;
                     oldPoint = pt;
@@ -446,7 +469,7 @@ namespace WpfPaintProj2.DrawingClasses
                 }
                 else if (controlPoints.ResizeRecrangeles.Contains(shape1))
                 {
-                    this.mode = DrawingMode.Resizing;
+                    this.DrawingMode = DrawingMode.Resizing;
                     OnResizePointClicked(shape1);
                     oldShapePosition = SelectedLayer.SelectedFigure.Location;
                     oldSize = SelectedLayer.SelectedFigure.Size;
@@ -473,7 +496,7 @@ namespace WpfPaintProj2.DrawingClasses
                     SelectedLayer.SelectedFigure.Location, oldSize, 
                     new Size(SelectedLayer.SelectedFigure.Width, SelectedLayer.SelectedFigure.Height))));
 
-            mode = DrawingMode.Selecting;
+            DrawingMode = DrawingMode.Selecting;
 
             this.Cursor = Cursors.Arrow;
         }

@@ -15,9 +15,9 @@
         <ToolBar DockPanel.Dock="Top">
             <Button Content="Создать" Click="createButton_Click"/>
         </ToolBar>
-        <StackPanel DockPanel.Dock="Bottom">
-            <Label>sadsd</Label>
-        </StackPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <Label Content="{Binding ElementName=drawingField, Path=DrawingMode}"/>
+        </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -95,8 +95,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="1" Content="Добавить" Click="addLayerButton_Click"/>
-                            <Button Grid.Column="0" Content="Удалить слой" Click="removeLayerButton_Click"/>
+                            <Button Grid.Column="0" Content="Добавить" Click="addLayerButton_Click"/>
+                            <Button Grid.Column="1" Content="Удалить слой" Click="removeLayerButton_Click"/>
                         </Grid>
                     </Grid>
                 </Grid>
