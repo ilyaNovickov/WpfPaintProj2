@@ -9,8 +9,8 @@ namespace WpfPaintProj2.Helpers
 {
     public class RelayCommand : ICommand
     {
-        private Action<object> action;
-        private Predicate<object> predicate;
+        private readonly Action<object> action;
+        private readonly Predicate<object> predicate;
 
         public event EventHandler CanExecuteChanged
         {

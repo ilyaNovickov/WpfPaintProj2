@@ -109,14 +109,14 @@ namespace WpfPaintProj2.Helpers
 
             foreach (KeyValuePair<string, Point> pair in points)
             {
-                Rectangle rect = new Rectangle()
+                Rectangle rect = new Rectangle
                 {
                     Width = 10,
                     Height = 10,
                     Fill = new SolidColorBrush(Color.FromRgb(0, 255, 0)),
-                    Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0))
+                    Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0)),
+                    Name = pair.Key
                 };
-                rect.Name = pair.Key;
                 rect.SetCanvasPoint(pair.Value.X - 5, pair.Value.Y - 5);
 
                 shapes.Add(rect);

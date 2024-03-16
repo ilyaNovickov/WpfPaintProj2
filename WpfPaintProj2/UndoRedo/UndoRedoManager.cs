@@ -9,8 +9,8 @@ namespace WpfPaintProj2.UndoRedo
 {
     public class UndoRedoManager
     {
-        private Stack<IUndoRedo> undo = new Stack<IUndoRedo>(1);
-        private Stack<IUndoRedo> redo = new Stack<IUndoRedo>(1);
+        private readonly Stack<IUndoRedo> undo = new Stack<IUndoRedo>(1);
+        private readonly Stack<IUndoRedo> redo = new Stack<IUndoRedo>(1);
 
         public Layer Owner { get; private set; }
 

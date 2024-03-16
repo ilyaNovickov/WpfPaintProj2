@@ -9,8 +9,8 @@ namespace WpfPaintProj2.Helpers
 {
     public class GenericCommand<T> : ICommand
     {
-        private Action<T> action;
-        private Predicate<T> predicate;
+        private readonly Action<T> action;
+        private readonly Predicate<T> predicate;
 
         public event EventHandler CanExecuteChanged
         {

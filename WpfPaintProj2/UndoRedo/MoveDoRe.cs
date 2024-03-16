@@ -10,13 +10,13 @@ namespace WpfPaintProj2.UndoRedo
 {
     public class MoveDoRe : IUndoRedo
     {
-        public Layer layer { get; }
+        public Layer Layer { get; }
         public MoveDoArgs Args { get; }
 
         public MoveDoRe(Layer layer, MoveDoArgs args)
         {
             Args = args;
-            this.layer = layer;
+            this.Layer = layer;
         }
 
         public void Invoke()
@@ -27,7 +27,7 @@ namespace WpfPaintProj2.UndoRedo
 
         public IUndoRedo GetInversedAction()
         {
-            return new MoveDoRe(this.layer, new MoveDoArgs(Args.Figure, Args.NewPosition, Args.OldPosition));
+            return new MoveDoRe(this.Layer, new MoveDoArgs(Args.Figure, Args.NewPosition, Args.OldPosition));
         }
     }
 }
